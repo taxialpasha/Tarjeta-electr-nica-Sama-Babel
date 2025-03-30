@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق الخدمات المصرفية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2e4057;
+            --secondary-color: #4da6ff;
+            --accent-color: #ff9966;
+            --light-color: #f5f5f5;
+            --dark-color: #333;
+            --white-color: #fff;
+            --grey-color: #ddd;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f0f0;
+            color: var(--dark-color);
+            direction: rtl;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: var(--white-color);
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* شريط العنوان */
+        .header {
+            background-color: var(--primary-color);
+            color: var(--white-color);
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .notification-icons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .notification-icons i {
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        /* بطاقة الرصيد */
+        .card-section {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white-color);
+            border-radius: 15px;
+            margin: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-section::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 40%, transparent 70%);
+            transform: rotate(30deg);
+            z-index: 1;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .refresh-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: var(--white-color);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(180deg);
+        }
+
+        .card-number {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .balance {
+            position: relative;
+            z-index: 2;
+        }
+
+        .balance-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .balance-amount {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .balance-currency {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-right: 5px;
+        }
+
+        /* قسم الخدمات */
+        .services-section {
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .grid-services {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .service-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .service-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(77, 166, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            color: var(--secondary-color);
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+        }
+
+        .service-item:hover .service-icon {
+            background-color: var(--secondary-color);
+            color: var(--white-color);
+        }
+
+        .service-name {
+            font-size: 0.8rem;
+            color: var(--dark-color);
+        }
+
+        /* شريط القائمة السفلي */
+        .bottom-nav {
+            position: sticky;
+            bottom: 0;
+            background-color: var(--white-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            border-top: 1px solid var(--grey-color);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--dark-color);
+            opacity: 0.7;
+        }
+
+        .nav-item.active {
+            color: var(--secondary-color);
+            opacity: 1;
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .nav-text {
+            font-size: 0.7rem;
+        }
+
+        /* تحسينات تجاوب الشاشة */
+        @media (max-width: 360px) {
+            .grid-services {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .service-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+            }
+            
+            .service-name {
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 600px;
+                margin: 20px auto;
+                border-radius: 15px;
+                min-height: calc(100vh - 40px);
+            }
+            
+            .card-section {
+                margin: 20px;
+            }
+            
+            .header {
+                border-radius: 15px 15px 0 0;
+            }
+            
+            .bottom-nav {
+                border-radius: 0 0 15px 15px;
+            }
+        }
+        
+        /* Animation */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- شريط العنوان -->
+        <div class="header">
+            <div class="header-title">الخدمات المصرفية</div>
+            <div class="notification-icons">
+                <i class="fas fa-sync-alt" id="refresh-page"></i>
+                <i class="fas fa-envelope"></i>
+                <i class="fas fa-bell"></i>
+            </div>
+        </div>
+
+        <!-- بطاقة الرصيد -->
+        <div class="card-section">
+            <div class="card-header">
+                <div class="card-title">بطاقة الائتمان</div>
+                <button class="refresh-btn" id="refresh-balance">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            <div class="card-number">**** **** **** 5678</div>
+            <div class="balance">
+                <div class="balance-label">الرصيد المتاح</div>
+                <div class="balance-amount">1,250,000 <span class="balance-currency">د.ع</span></div>
+            </div>
+        </div>
+
+        <!-- خدمات الحساب -->
+        <div class="services-section">
+            <div class="section-title">خدمات الحساب</div>
+            <div class="grid-services">
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="service-name">إدارة الحساب</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-user-edit"></i>
+                    </div>
+                    <div class="service-name">تحديث البيانات</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="service-name">تتبع الطلبات</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <div class="service-name">كشف الحساب</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="service-name">تحويل الأموال</div>
+                </div>
+            </div>
+
+            <!-- خدمات البطاقة -->
+            <div class="section-title">خدمات البطاقة</div>
+            <div class="grid-services">
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="service-name">كشف الرمز</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="service-name">حظر البطاقة</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-sync"></i>
+                    </div>
+                    <div class="service-name">استبدال البطاقة</div>
+                </div>
+                <div class="service-item">
+                    <div class="service-icon">
+                        <i class="fas fa-redo"></i>
+                    </div>
+                    <div class="service-name">تجديد البطاقة</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- شريط القائمة السفلي -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <div class="nav-icon"><i class="fas fa-home"></i></div>
+                <div class="nav-text">الرئيسية</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon"><i class="fas fa-exchange-alt"></i></div>
+                <div class="nav-text">التحويل</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon"><i class="fas fa-book"></i></div>
+                <div class="nav-text">الدليل</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon"><i class="fas fa-cog"></i></div>
+                <div class="nav-text">الضبط</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
+    <script>
+        // تكوين Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGpAHia_wEmrhnmYjrPf1n1TrAzwEMiAI",
+            authDomain: "messageemeapp.firebaseapp.com",
+            databaseURL: "https://messageemeapp-default-rtdb.firebaseio.com",
+            projectId: "messageemeapp",
+            storageBucket: "messageemeapp.appspot.com",
+            messagingSenderId: "255034474844",
+            appId: "1:255034474844:web:5e3b7a6bc4b2fb94cc4199"
+        };
+        
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // الحصول على مراجع لخدمات Firebase
+        const database = firebase.database();
+        const auth = firebase.auth();
+        
+        // معرّف المستخدم الافتراضي (يمكن تغييره بناءً على نظام تسجيل الدخول)
+        let currentUserId = "user123";
+        
+        // تحديد العناصر
+        const refreshBalanceBtn = document.getElementById('refresh-balance');
+        const refreshPageBtn = document.getElementById('refresh-page');
+        const navItems = document.querySelectorAll('.nav-item');
+        const serviceItems = document.querySelectorAll('.service-item');
+        const balanceAmount = document.querySelector('.balance-amount');
+        const cardNumber = document.querySelector('.card-number');
+        
+        // دالة لتسجيل الدخول (يمكن تعديلها لاحقًا)
+        function loginUser(email, password) {
+            return auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    currentUserId = userCredential.user.uid;
+                    loadUserData(currentUserId);
+                    return userCredential.user;
+                });
+        }
+        
+        // جلب بيانات المستخدم من Firebase
+        function loadUserData(userId) {
+            showLoading(true);
+            
+            // الاستماع إلى تغييرات بيانات المستخدم في الوقت الفعلي
+            database.ref('users/' + userId).on('value', (snapshot) => {
+                const userData = snapshot.val();
+                if (userData) {
+                    updateUIWithUserData(userData);
+                } else {
+                    showNotification('لم يتم العثور على بيانات المستخدم');
+                    // إنشاء بيانات افتراضية للمستخدم الجديد
+                    createDefaultUserData(userId);
+                }
+                showLoading(false);
+            }, (error) => {
+                console.error("خطأ في قراءة البيانات:", error);
+                showNotification('حدث خطأ أثناء تحميل البيانات');
+                showLoading(false);
+            });
+        }
+        
+        // إنشاء بيانات افتراضية للمستخدم الجديد
+        function createDefaultUserData(userId) {
+            const defaultData = {
+                cardNumber: "**** **** **** 5678",
+                balance: 1000000,
+                name: "مستخدم جديد",
+                lastUpdate: firebase.database.ServerValue.TIMESTAMP
+            };
+            
+            database.ref('users/' + userId).set(defaultData)
+                .then(() => {
+                    showNotification('تم إنشاء حساب جديد');
+                })
+                .catch((error) => {
+                    console.error("خطأ في إنشاء البيانات:", error);
+                    showNotification('حدث خطأ أثناء إنشاء البيانات');
+                });
+        }
+        
+        // تحديث واجهة المستخدم بالبيانات المستلمة
+        function updateUIWithUserData(userData) {
+            // تحديث رقم البطاقة
+            if (userData.cardNumber) {
+                cardNumber.textContent = userData.cardNumber;
+            }
+            
+            // تحديث الرصيد
+            if (userData.balance !== undefined) {
+                const formattedBalance = new Intl.NumberFormat('ar-IQ').format(userData.balance);
+                balanceAmount.innerHTML = `${formattedBalance} <span class="balance-currency">د.ع</span>`;
+            }
+            
+            // يمكن إضافة المزيد من التحديثات هنا (اسم المستخدم، تاريخ آخر تحديث، إلخ)
+        }
+        
+        // تحديث الرصيد من Firebase
+        function refreshBalance() {
+            refreshBalanceBtn.classList.add('pulse');
+            showLoading(true);
+            
+            // قراءة أحدث البيانات من Firebase
+            database.ref('users/' + currentUserId).once('value')
+                .then((snapshot) => {
+                    const userData = snapshot.val();
+                    if (userData) {
+                        updateUIWithUserData(userData);
+                        showNotification('تم تحديث الرصيد بنجاح');
+                    } else {
+                        showNotification('لم يتم العثور على بيانات المستخدم');
+                    }
+                })
+                .catch((error) => {
+                    console.error("خطأ في تحديث البيانات:", error);
+                    showNotification('حدث خطأ أثناء تحديث البيانات');
+                })
+                .finally(() => {
+                    refreshBalanceBtn.classList.remove('pulse');
+                    showLoading(false);
+                });
+        }
+        
+        // إضافة مبلغ إلى رصيد المستخدم (يمكن استخدامها من التطبيق الآخر)
+        function addToBalance(amount) {
+            if (!amount || isNaN(amount) || amount <= 0) {
+                showNotification('المبلغ غير صحيح');
+                return Promise.reject('المبلغ غير صحيح');
+            }
+            
+            return database.ref('users/' + currentUserId).once('value')
+                .then((snapshot) => {
+                    const userData = snapshot.val();
+                    if (userData) {
+                        const currentBalance = userData.balance || 0;
+                        const newBalance = currentBalance + Number(amount);
+                        
+                        // تحديث الرصيد والتاريخ
+                        return database.ref('users/' + currentUserId).update({
+                            balance: newBalance,
+                            lastUpdate: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    } else {
+                        throw new Error('لم يتم العثور على بيانات المستخدم');
+                    }
+                })
+                .then(() => {
+                    showNotification('تم إضافة المبلغ بنجاح');
+                    return true;
+                });
+        }
+        
+        // سحب مبلغ من رصيد المستخدم
+        function withdrawFromBalance(amount) {
+            if (!amount || isNaN(amount) || amount <= 0) {
+                showNotification('المبلغ غير صحيح');
+                return Promise.reject('المبلغ غير صحيح');
+            }
+            
+            return database.ref('users/' + currentUserId).once('value')
+                .then((snapshot) => {
+                    const userData = snapshot.val();
+                    if (userData) {
+                        const currentBalance = userData.balance || 0;
+                        if (currentBalance < amount) {
+                            throw new Error('الرصيد غير كافٍ');
+                        }
+                        
+                        const newBalance = currentBalance - Number(amount);
+                        
+                        // تحديث الرصيد والتاريخ
+                        return database.ref('users/' + currentUserId).update({
+                            balance: newBalance,
+                            lastUpdate: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    } else {
+                        throw new Error('لم يتم العثور على بيانات المستخدم');
+                    }
+                })
+                .then(() => {
+                    showNotification('تم السحب بنجاح');
+                    return true;
+                });
+        }
+        
+        // إظهار حالة التحميل
+        function showLoading(isLoading) {
+            const loadingOverlay = document.getElementById('loading-overlay');
+            if (isLoading) {
+                if (!loadingOverlay) {
+                    const overlay = document.createElement('div');
+                    overlay.id = 'loading-overlay';
+                    overlay.style.position = 'fixed';
+                    overlay.style.top = '0';
+                    overlay.style.left = '0';
+                    overlay.style.width = '100%';
+                    overlay.style.height = '100%';
+                    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                    overlay.style.display = 'flex';
+                    overlay.style.justifyContent = 'center';
+                    overlay.style.alignItems = 'center';
+                    overlay.style.zIndex = '2000';
+                    
+                    const spinner = document.createElement('div');
+                    spinner.className = 'spinner';
+                    spinner.style.width = '50px';
+                    spinner.style.height = '50px';
+                    spinner.style.border = '5px solid #f3f3f3';
+                    spinner.style.borderTop = '5px solid var(--secondary-color)';
+                    spinner.style.borderRadius = '50%';
+                    spinner.style.animation = 'spin 1s linear infinite';
+                    
+                    const keyframes = document.createElement('style');
+                    keyframes.innerHTML = `
+                        @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                        }
+                    `;
+                    
+                    document.head.appendChild(keyframes);
+                    overlay.appendChild(spinner);
+                    document.body.appendChild(overlay);
+                }
+            } else if (loadingOverlay) {
+                loadingOverlay.remove();
+            }
+        }
+        
+        // دالة لإظهار إشعار مؤقت
+        function showNotification(message) {
+            // إنشاء عنصر الإشعار
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.bottom = '70px';
+            notification.style.left = '50%';
+            notification.style.transform = 'translateX(-50%)';
+            notification.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            notification.style.color = 'white';
+            notification.style.padding = '10px 20px';
+            notification.style.borderRadius = '20px';
+            notification.style.zIndex = '1000';
+            
+            // إضافة الإشعار إلى الصفحة
+            document.body.appendChild(notification);
+            
+            // إزالة الإشعار بعد فترة
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 500);
+            }, 2000);
+        }
+        
+        // تسجيل أحداث النقر
+        refreshBalanceBtn.addEventListener('click', refreshBalance);
+        
+        refreshPageBtn.addEventListener('click', function() {
+            this.classList.add('fa-spin');
+            setTimeout(() => {
+                this.classList.remove('fa-spin');
+                showNotification('تم تحديث الصفحة بنجاح');
+                loadUserData(currentUserId);
+            }, 1000);
+        });
+        
+        // التبديل بين عناصر القائمة السفلية
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                navItems.forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+                
+                // إظهار اسم القسم المحدد
+                const sectionName = this.querySelector('.nav-text').textContent;
+                showNotification(`انتقال إلى ${sectionName}`);
+            });
+        });
+        
+        // التفاعل مع عناصر الخدمة
+        serviceItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const serviceName = this.querySelector('.service-name').textContent;
+                showNotification(`تم اختيار خدمة: ${serviceName}`);
+                
+                // يمكن إضافة وظائف خاصة لكل خدمة هنا
+                if (serviceName === 'كشف الحساب') {
+                    // مثال: عرض كشف الحساب من Firebase
+                    showBankStatement();
+                } else if (serviceName === 'تحويل الأموال') {
+                    // مثال: فتح نافذة تحويل الأموال
+                    showTransferDialog();
+                }
+            });
+        });
+        
+        // عرض كشف الحساب (مثال)
+        function showBankStatement() {
+            showNotification('جاري تحميل كشف الحساب...');
+            // يمكن هنا استدعاء البيانات من Firebase وعرضها
+        }
+        
+        // عرض نافذة التحويل (مثال)
+        function showTransferDialog() {
+            // يمكن إنشاء نافذة منبثقة للتحويل
+            showNotification('تم فتح نافذة التحويل');
+        }
+        
+        // تحميل بيانات المستخدم عند تحميل الصفحة
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.querySelector('.container').style.opacity = '1';
+                // تحميل بيانات المستخدم من Firebase
+                loadUserData(currentUserId);
+            }, 200);
+        });
+        
+        // إضافة دالة لتصدير API يمكن استخدامها من تطبيقات أخرى
+        window.bankApp = {
+            addToBalance: addToBalance,
+            withdrawFromBalance: withdrawFromBalance,
+            getBalance: function() {
+                return database.ref('users/' + currentUserId + '/balance').once('value')
+                    .then(snapshot => snapshot.val() || 0);
+            },
+            refreshData: function() {
+                return loadUserData(currentUserId);
+            }
+        };
+    </script>
+</body>
+</html>
