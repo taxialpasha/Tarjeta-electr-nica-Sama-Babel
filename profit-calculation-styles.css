@@ -1,0 +1,374 @@
+/* === أنماط CSS لنظام حساب الأرباح النسبية === */
+
+/* أنماط مكون تحليل الأرباح في لوحة التحكم */
+.profit-analysis-widget {
+  border: 1px solid var(--primary-light);
+  border-radius: var(--radius-md);
+  background-color: rgba(59, 130, 246, 0.05);
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.profit-analysis-widget .section-header {
+  margin-bottom: 0.75rem;
+}
+
+.profit-analysis-container {
+  padding: 0.5rem 0;
+}
+
+/* أنماط مخطط الأرصدة اليومية */
+.balance-chart {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  background-color: var(--white);
+  overflow: hidden;
+}
+
+/* أنماط معاينة تأثير المعاملة */
+.transaction-impact-preview {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-right: 4px solid var(--primary-color);
+  margin-top: 1rem;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* أنماط تقارير تحليل الأرباح */
+.profit-report-section {
+  margin-bottom: 1.5rem;
+}
+
+.profit-summary-card {
+  background: linear-gradient(135deg, #f3f9ff, #e6f0fd);
+  border: 1px solid var(--primary-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.profit-summary-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.profit-chart-container {
+  background-color: var(--white);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--gray-200);
+  padding: 1rem;
+  min-height: 250px;
+  position: relative;
+}
+
+.profit-forecast-item {
+  border-right: 3px solid var(--primary-color);
+  background-color: rgba(59, 130, 246, 0.05);
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+}
+
+.profit-forecast-item:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+  transform: translateX(-3px);
+}
+
+.forecast-amount {
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+/* أنماط للوحة التحكم في الوضع الداكن */
+.dark-theme .profit-analysis-widget {
+  background-color: rgba(59, 130, 246, 0.15);
+  border-color: var(--primary-dark);
+}
+
+.dark-theme .balance-chart {
+  background-color: var(--gray-100);
+  border-color: var(--gray-300);
+}
+
+.dark-theme .transaction-impact-preview {
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+.dark-theme .profit-summary-card {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(29, 78, 216, 0.2));
+  border-color: var(--primary-dark);
+}
+
+.dark-theme .profit-chart-container {
+  background-color: var(--gray-100);
+  border-color: var(--gray-300);
+}
+
+.dark-theme .profit-forecast-item {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+
+.dark-theme .profit-forecast-item:hover {
+  background-color: rgba(59, 130, 246, 0.25);
+}
+
+/* تعديلات إضافية للمخطط والجداول */
+.dashboard-card {
+  transition: all 0.3s ease;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+
+/* أنماط جدول الأرباح */
+.profit-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.profit-table th {
+  background-color: rgba(59, 130, 246, 0.1);
+  padding: 0.5rem;
+  text-align: right;
+  font-weight: 600;
+  color: var(--gray-800);
+  border: 1px solid var(--gray-200);
+}
+
+.profit-table td {
+  padding: 0.5rem;
+  border: 1px solid var(--gray-200);
+}
+
+.profit-table tr:nth-child(even) {
+  background-color: rgba(59, 130, 246, 0.03);
+}
+
+.profit-table tr:hover {
+  background-color: rgba(59, 130, 246, 0.07);
+}
+
+/* أنماط الأيقونات والمؤشرات */
+.trend-indicator {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.trend-up {
+  color: var(--secondary-color);
+}
+
+.trend-down {
+  color: var(--danger-color);
+}
+
+.trend-neutral {
+  color: var(--gray-500);
+}
+
+/* أنماط العناصر الإضافية للمستثمرين */
+.investor-profit-details {
+  background-color: rgba(16, 185, 129, 0.05);
+  border: 1px solid var(--gray-200);
+  border-right: 3px solid var(--secondary-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.investor-profit-details h4 {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.investor-profit-details h4 i {
+  color: var(--secondary-color);
+}
+
+/* أنماط واجهة المستخدم الإضافية */
+.filter-panel {
+  background-color: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.filter-label {
+  font-weight: 500;
+  color: var(--gray-600);
+  margin-left: 0.5rem;
+}
+
+.date-range-picker {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.date-range-picker input {
+  width: auto;
+  padding: 0.5rem;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius-sm);
+}
+
+/* أنماط التأثيرات والتحولات */
+@keyframes highlight {
+  0% { background-color: rgba(16, 185, 129, 0.3); }
+  100% { background-color: transparent; }
+}
+
+.highlight-row {
+  animation: highlight 2s ease;
+}
+
+/* أنماط للشاشات الصغيرة */
+@media (max-width: 576px) {
+  .profit-table {
+    font-size: 0.75rem;
+  }
+  
+  .profit-table th,
+  .profit-table td {
+    padding: 0.35rem;
+  }
+  
+  .filter-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .date-range-picker {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* أنماط إضافية للوضع الداكن */
+.dark-theme .profit-table th {
+  background-color: rgba(59, 130, 246, 0.2);
+  border-color: var(--gray-300);
+  color: var(--white);
+}
+
+.dark-theme .profit-table td {
+  border-color: var(--gray-300);
+}
+
+.dark-theme .profit-table tr:nth-child(even) {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.dark-theme .profit-table tr:hover {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+
+.dark-theme .investor-profit-details {
+  background-color: rgba(16, 185, 129, 0.1);
+  border-color: var(--gray-300);
+}
+
+.dark-theme .filter-panel {
+  background-color: var(--gray-100);
+  border-color: var(--gray-300);
+}
+
+.dark-theme .filter-label {
+  color: var(--gray-400);
+}
+
+.dark-theme .date-range-picker input {
+  background-color: var(--gray-200);
+  border-color: var(--gray-300);
+  color: var(--white);
+}
+
+/* أنماط لأزرار تصدير التقارير */
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.export-btn:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.export-btn i {
+  font-size: 0.875rem;
+}
+
+/* أنماط خاصة بمكونات تحليل الأرباح في تفاصيل المستثمر */
+.investor-balance-chart {
+  height: 200px;
+  position: relative;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.profit-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.profit-breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-bottom: 1px dashed var(--gray-200);
+}
+
+.profit-breakdown-item:last-child {
+  border-bottom: none;
+  font-weight: bold;
+}
+
+.profit-breakdown-label {
+  color: var(--gray-600);
+}
+
+.profit-breakdown-value {
+  font-weight: 500;
+}
+
+/* دعم إضافي للأجهزة اللوحية */
+@media (min-width: 577px) and (max-width: 992px) {
+  .investor-balance-chart {
+    height: 180px;
+  }
+  
+  .profit-breakdown {
+    font-size: 0.85rem;
+  }
+}

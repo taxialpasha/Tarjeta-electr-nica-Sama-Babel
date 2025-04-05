@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام إدارة الاستثمارات | النسخة المطورة</title>
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts - Cairo & Tajawal -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700&display=swap">
+  <!-- Chart.js for Charts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Loader -->
+  <div id="loader-container">
+    <div class="app-loader">
+      <svg class="app-loader-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="72" height="72" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+      </svg>
+      <p class="app-loader-text">جاري تحميل نظام إدارة الاستثمارات</p>
+    </div>
+  </div>
+
+  <!-- رأس الصفحة -->
+  <header>
+    <div class="header-content">
+      <div class="header-title">
+        <i class="fas fa-chart-line header-icon-pulse"></i>
+        <h1>نظام إدارة الاستثمارات</h1>
+        <span class="app-version">النسخة 2.0</span>
+      </div>
+      <div class="header-actions">
+        <button id="notifications-btn" class="header-icon" title="الإشعارات">
+          <i class="fas fa-bell"></i>
+          <span id="notifications-count" class="header-badge">0</span>
+        </button>
+        <button id="toggle-theme" class="header-icon" title="تغيير السمة">
+          <i class="fas fa-moon"></i>
+        </button>
+        <button id="refresh-data" class="header-icon" title="تحديث البيانات">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+        <div class="dropdown">
+          <button id="quick-actions" class="header-icon" title="إجراءات سريعة">
+            <i class="fas fa-ellipsis-v"></i>
+          </button>
+          <div id="actions-dropdown" class="dropdown-menu">
+            <div class="dropdown-header">إجراءات سريعة</div>
+            <a href="#" class="dropdown-item" id="new-investor-dropdown">
+              <i class="fas fa-user-plus"></i>
+              <span>إضافة مستثمر جديد</span>
+            </a>
+            <a href="#" class="dropdown-item" id="new-transaction-dropdown">
+              <i class="fas fa-exchange-alt"></i>
+              <span>تسجيل معاملة</span>
+            </a>
+            <a href="#" class="dropdown-item" id="calc-profits-dropdown">
+              <i class="fas fa-calculator"></i>
+              <span>حاسبة الأرباح</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item" id="export-data-dropdown">
+              <i class="fas fa-file-export"></i>
+              <span>تصدير البيانات</span>
+            </a>
+            <a href="#" class="dropdown-item" id="import-data-dropdown">
+              <i class="fas fa-file-import"></i>
+              <span>استيراد البيانات</span>
+            </a>
+            <a href="#" class="dropdown-item" id="help-dropdown">
+              <i class="fas fa-question-circle"></i>
+              <span>مساعدة</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- المحتوى الرئيسي -->
+  <main id="main-content">
+    <!-- يتم تحميل المحتوى هنا ديناميكيًا -->
+  </main>
+
+  <!-- زر الإجراء السريع العائم -->
+  <button id="floating-action" class="floating-action-btn">
+    <i class="fas fa-plus"></i>
+  </button>
+
+  <!-- القائمة السفلية -->
+  <nav class="bottom-nav">
+    <div class="flex justify-around">
+      <button id="nav-home" class="nav-item active">
+        <i class="fas fa-home"></i>
+        <span class="text-xs mt-1">الرئيسية</span>
+      </button>
+      <button id="nav-investors" class="nav-item">
+        <i class="fas fa-users"></i>
+        <span class="text-xs mt-1">المستثمرين</span>
+      </button>
+      <button id="nav-transactions" class="nav-item">
+        <i class="fas fa-exchange-alt"></i>
+        <span class="text-xs mt-1">المعاملات</span>
+      </button>
+      <button id="nav-reports" class="nav-item">
+        <i class="fas fa-chart-pie"></i>
+        <span class="text-xs mt-1">التقارير</span>
+      </button>
+      <button id="nav-settings" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span class="text-xs mt-1">الإعدادات</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- النوافذ المنبثقة -->
+  <!-- نافذة إضافة/تعديل مستثمر -->
+  <div id="add-investor-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="investor-modal-title">إضافة مستثمر جديد</h2>
+        <button class="modal-close" id="close-investor-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">الاسم الكامل<span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="new-investor-name"
+            class="w-full"
+            placeholder="أدخل اسم المستثمر"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">رقم الهاتف</label>
+          <div class="input-with-icon">
+            <i class="fas fa-phone-alt"></i>
+            <input 
+              type="tel" 
+              id="new-investor-phone"
+              class="w-full has-icon"
+              placeholder="أدخل رقم الهاتف"
+            />
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">البريد الإلكتروني</label>
+          <div class="input-with-icon">
+            <i class="fas fa-envelope"></i>
+            <input 
+              type="email" 
+              id="new-investor-email"
+              class="w-full has-icon"
+              placeholder="أدخل البريد الإلكتروني"
+            />
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">العنوان</label>
+          <div class="input-with-icon">
+            <i class="fas fa-map-marker-alt"></i>
+            <input 
+              type="text" 
+              id="new-investor-address"
+              class="w-full has-icon"
+              placeholder="أدخل عنوان المستثمر"
+            />
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">مبلغ الاستثمار (د.ع)<span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i class="fas fa-coins"></i>
+            <input 
+              type="number" 
+              id="new-investor-amount"
+              class="w-full has-icon"
+              placeholder="أدخل مبلغ الاستثمار"
+            />
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">تاريخ بدء الاستثمار<span class="required">*</span></label>
+            <div class="input-with-icon">
+              <i class="fas fa-calendar-alt"></i>
+              <input 
+                type="date" 
+                id="new-investor-start-date"
+                class="w-full has-icon"
+              />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">توقيت الاستثمار</label>
+            <div class="input-with-icon">
+              <i class="fas fa-clock"></i>
+              <input 
+                type="time" 
+                id="new-investor-start-time"
+                class="w-full has-icon"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">رقم الهوية/البطاقة الشخصية</label>
+          <div class="input-with-icon">
+            <i class="fas fa-id-card"></i>
+            <input 
+              type="text" 
+              id="new-investor-id-card"
+              class="w-full has-icon"
+              placeholder="أدخل رقم بطاقة الهوية"
+            />
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">النسبة المخصصة للأرباح (%)</label>
+          <div class="input-with-icon">
+            <i class="fas fa-percentage"></i>
+            <input 
+              type="number" 
+              id="new-investor-profit-rate"
+              class="w-full has-icon"
+              placeholder="أدخل النسبة المخصصة أو اترك الحقل فارغاً لاستخدام النسبة الافتراضية"
+              step="0.1"
+            />
+          </div>
+          <p class="text-xs text-hint mt-1" id="default-profit-rate-hint">
+            النسبة الافتراضية: <span id="default-profit-rate-value"></span>% شهرياً
+          </p>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">ملاحظات</label>
+          <div class="input-with-icon textarea">
+            <i class="fas fa-sticky-note"></i>
+            <textarea 
+              id="new-investor-notes"
+              class="w-full has-icon"
+              placeholder="أي ملاحظات إضافية"
+              rows="2"
+            ></textarea>
+          </div>
+        </div>
+        
+        <div class="form-group" id="investment-contract-group">
+          <div class="checkbox-control">
+            <input type="checkbox" id="new-investor-has-contract" />
+            <label for="new-investor-has-contract">تم توقيع عقد استثمار</label>
+          </div>
+        </div>
+        
+        <div class="form-group" id="investor-preview-group">
+          <label class="form-label">ملخص الاستثمار</label>
+          <div class="preview-card">
+            <div class="preview-item">
+              <span class="preview-label">الربح الشهري المتوقع:</span>
+              <span class="preview-value" id="preview-monthly-profit">0 د.ع</span>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">تاريخ أول دفعة:</span>
+              <span class="preview-value" id="preview-first-payment">--/--/----</span>
+            </div>
+            <div class="preview-item">
+              <span class="preview-label">مبلغ الاستثمار:</span>
+              <span class="preview-value" id="preview-investment-amount">0 د.ع</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <input type="hidden" id="edit-investor-id" value="" />
+      
+      <div class="modal-footer">
+        <button 
+          class="btn btn-gray"
+          id="cancel-add-investor"
+        >
+          إلغاء
+        </button>
+        <button 
+          class="btn btn-primary"
+          id="confirm-add-investor"
+        >
+          <i class="fas fa-user-plus ml-2"></i>
+          إضافة
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة إضافة معاملة -->
+  <div id="add-transaction-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="transaction-modal-title">
+          إضافة معاملة جديدة
+        </h2>
+        <button class="modal-close" id="close-transaction-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">المستثمر<span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i class="fas fa-user"></i>
+            <select 
+              id="transaction-investor-id"
+              class="w-full has-icon"
+            >
+              <option value="">اختر المستثمر</option>
+              <!-- يتم إضافة الخيارات ديناميكيًا -->
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">نوع المعاملة<span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i class="fas fa-exchange-alt"></i>
+            <select 
+              id="transaction-type"
+              class="w-full has-icon"
+            >
+              <option value="payout">دفع ربح</option>
+              <option value="partial-payout">سحب ربح جزئي</option>
+              <option value="investment">استثمار جديد</option>
+              <option value="withdrawal">سحب من رأس المال</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- حقل نسبة السحب من رأس المال (يظهر فقط عند اختيار سحب من رأس المال) -->
+        <div class="form-group hidden" id="withdrawal-percentage-group">
+          <label class="form-label">نسبة السحب من رأس المال (%)</label>
+          <div class="input-with-icon">
+            <i class="fas fa-percentage"></i>
+            <input 
+              type="number" 
+              id="withdrawal-percentage"
+              class="w-full has-icon"
+              placeholder="أدخل نسبة السحب من رأس المال"
+              min="0"
+              max="100"
+              step="0.1"
+            />
+          </div>
+          <div class="flex gap-2 mt-2">
+            <button class="badge badge-primary flex-grow-1" data-percentage="25">25%</button>
+            <button class="badge badge-primary flex-grow-1" data-percentage="50">50%</button>
+            <button class="badge badge-primary flex-grow-1" data-percentage="75">75%</button>
+            <button class="badge badge-primary flex-grow-1" data-percentage="100">100%</button>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">المبلغ (د.ع)<span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i class="fas fa-coins"></i>
+            <input 
+              type="number" 
+              id="transaction-amount"
+              class="w-full has-icon"
+              placeholder="أدخل المبلغ"
+            />
+          </div>
+          <div id="amount-calculation-container" class="text-xs text-hint mt-1 hidden">
+            <span id="amount-calculation-text"></span>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">التاريخ<span class="required">*</span></label>
+            <div class="input-with-icon">
+              <i class="fas fa-calendar-alt"></i>
+              <input 
+                type="date" 
+                id="transaction-date"
+                class="w-full has-icon"
+              />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">الوقت</label>
+            <div class="input-with-icon">
+              <i class="fas fa-clock"></i>
+              <input 
+                type="time" 
+                id="transaction-time"
+                class="w-full has-icon"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <!-- معلومات تفصيلية للمعاملة الجزئية -->
+        <div id="partial-payout-info" class="card-blue-light p-3 rounded-lg mb-4 hidden">
+          <h3 class="font-bold mb-2">تفاصيل السحب الجزئي:</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="form-group">
+              <label class="form-label">تاريخ البدء</label>
+              <div class="input-with-icon">
+                <i class="fas fa-calendar-alt"></i>
+                <input 
+                  type="date" 
+                  id="daily-calc-start-date"
+                  class="w-full has-icon"
+                />
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">تاريخ السحب</label>
+              <div class="input-with-icon">
+                <i class="fas fa-calendar-alt"></i>
+                <input 
+                  type="date" 
+                  id="daily-calc-end-date"
+                  class="w-full has-icon"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <div class="result-container mt-4" id="daily-result-container">
+            <div class="alert alert-info">
+              <i class="fas fa-clock text-blue-600"></i>
+              <div>
+                <p class="font-bold">عدد الأيام المستحقة:</p>
+                <p id="daily-calc-days">- - -</p>
+              </div>
+            </div>
+            
+            <div class="alert alert-success">
+              <i class="fas fa-check-circle text-green-600"></i>
+              <div>
+                <p class="font-bold">الربح المستحق:</p>
+                <p id="daily-calc-profit">- - -</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="calc-profits-btn">
+          <i class="fas fa-calculator ml-1"></i>
+          حساب الأرباح
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة المساعدة -->
+  <div id="help-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">مساعدة</h2>
+        <button class="modal-close" id="close-help-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="accordion">
+          <div class="accordion-item">
+            <div class="accordion-header">
+              <i class="fas fa-question-circle text-blue-600 ml-2"></i>
+              كيفية إضافة مستثمر جديد
+              <i class="fas fa-chevron-down accordion-icon"></i>
+            </div>
+            <div class="accordion-content">
+              <p>لإضافة مستثمر جديد يمكنك اتباع الخطوات التالية:</p>
+              <ol class="text-right mr-4 mt-2">
+                <li>انقر على زر "إضافة مستثمر" في صفحة المستثمرين</li>
+                <li>قم بتعبئة النموذج بالبيانات المطلوبة (الاسم، المبلغ، تاريخ البدء)</li>
+                <li>انقر على زر "إضافة" في أسفل النموذج</li>
+              </ol>
+              <p class="mt-2">ستتم إضافة المستثمر الجديد مع معاملة استثمار أولي تلقائياً.</p>
+            </div>
+          </div>
+          
+          <div class="accordion-item">
+            <div class="accordion-header">
+              <i class="fas fa-calculator text-blue-600 ml-2"></i>
+              كيف يتم حساب الأرباح
+              <i class="fas fa-chevron-down accordion-icon"></i>
+            </div>
+            <div class="accordion-content">
+              <p>يتم حساب الأرباح بناءً على المعادلة التالية:</p>
+              <div class="formula-container">
+                <p>الربح الشهري = (مبلغ الاستثمار ÷ 1,000,000) × نسبة الربح × 1000</p>
+              </div>
+              <p class="mt-2">في حالة السحب الجزئي يتم حساب الأرباح بناء على عدد الأيام من آخر دفعة:</p>
+              <div class="formula-container">
+                <p>الربح المستحق = (الربح الشهري ÷ 30) × عدد الأيام</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="accordion-item">
+            <div class="accordion-header">
+              <i class="fas fa-exchange-alt text-blue-600 ml-2"></i>
+              أنواع المعاملات
+              <i class="fas fa-chevron-down accordion-icon"></i>
+            </div>
+            <div class="accordion-content">
+              <ul class="text-right mr-4">
+                <li><strong>استثمار:</strong> إضافة مبلغ جديد للاستثمار</li>
+                <li><strong>دفع ربح:</strong> دفع الربح المستحق عن فترة شهر كامل</li>
+                <li><strong>سحب ربح جزئي:</strong> دفع ربح عن فترة جزئية من الشهر</li>
+                <li><strong>سحب من رأس المال:</strong> استرداد جزء أو كل رأس المال المستثمر</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="accordion-item">
+            <div class="accordion-header">
+              <i class="fas fa-server text-blue-600 ml-2"></i>
+              حفظ واستعادة البيانات
+              <i class="fas fa-chevron-down accordion-icon"></i>
+            </div>
+            <div class="accordion-content">
+              <p>يتم حفظ جميع البيانات تلقائياً في المتصفح. يمكنك أيضاً:</p>
+              <ul class="text-right mr-4 mt-2">
+                <li><strong>تصدير البيانات:</strong> للاحتفاظ بنسخة احتياطية (من قائمة الإجراءات السريعة)</li>
+                <li><strong>استيراد البيانات:</strong> لاستعادة البيانات من ملف (من قائمة الإجراءات السريعة)</li>
+              </ul>
+              <p class="mt-2 text-yellow-600"><i class="fas fa-exclamation-triangle ml-1"></i> ننصح بعمل نسخة احتياطية بشكل دوري للحفاظ على البيانات.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة تأكيد عامة -->
+  <div id="confirm-modal" class="modal-overlay">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 class="modal-title" id="confirm-title">تأكيد</h2>
+        <button class="modal-close" id="close-confirm-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <p id="confirm-message">هل أنت متأكد من إتمام هذه العملية؟</p>
+      </div>
+      
+      <div class="modal-footer">
+        <button 
+          class="btn btn-gray"
+          id="cancel-confirm"
+        >
+          إلغاء
+        </button>
+        <button 
+          class="btn btn-danger"
+          id="confirm-action"
+        >
+          تأكيد
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة صادرات البيانات -->
+  <div id="export-options-modal" class="modal-overlay">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 class="modal-title">تصدير البيانات</h2>
+        <button class="modal-close" id="close-export-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="export-option" data-type="json">
+          <i class="fas fa-file-code text-blue-600"></i>
+          <div>
+            <h3>ملف بيانات JSON</h3>
+            <p class="text-sm text-gray-500">صيغة كاملة لحفظ جميع البيانات واستعادتها لاحقاً</p>
+          </div>
+        </div>
+        
+        <div class="export-option" data-type="excel">
+          <i class="fas fa-file-excel text-green-600"></i>
+          <div>
+            <h3>ملف Excel</h3>
+            <p class="text-sm text-gray-500">لتحليل البيانات وإنشاء التقارير المخصصة</p>
+          </div>
+        </div>
+        
+        <div class="export-option" data-type="pdf">
+          <i class="fas fa-file-pdf text-red-600"></i>
+          <div>
+            <h3>تقرير PDF</h3>
+            <p class="text-sm text-gray-500">لطباعة وحفظ تقرير كامل عن جميع الاستثمارات</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // البيانات الرئيسية للتطبيق
+    let investors = [];
+    let transactions = [];
+    let profitRate = 17.5;
+    let currentPage = 'home';
+    let selectedInvestor = null;
+    let isDarkTheme = false;
+    let showExactDaysInCalculations = true; // خيار لعرض الأيام بدقة في الحسابات
+    let defaultDaysPerMonth = 30; // عدد الأيام الافتراضي في الشهر للحسابات
+    let enableNotifications = true; // تفعيل الإشعارات
+    let activeInvestmentsChart = null; // لتخزين مرجع الرسم البياني
+    let monthlyProfitsChart = null; // لتخزين مرجع الرسم البياني
+    
+    // ملخص البيانات المالية
+    let dailySummary = {
+      totalInvestments: 0,
+      totalPayouts: 0,
+      adminExpenses: 0,
+      activeInvestors: 0
+    };
+    
+    // الإشعارات
+    let notifications = [];
+    
+    // التاريخ الحالي
+    const getCurrentDate = () => {
+      const now = new Date();
+      return now.toISOString().substr(0, 10);
+    };
+    
+    // الوقت الحالي
+    const getCurrentTime = () => {
+      const now = new Date();
+      return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    };
+    
+    // تحميل التطبيق
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        document.getElementById('loader-container').classList.add('fade-out');
+        setTimeout(() => {
+          document.getElementById('loader-container').style.display = 'none';
+          initApp();
+        }, 500);
+      }, 1000);
+    });
+    
+    // محتوى الصفحة الرئيسية
+    const renderHomePage = () => {
+      const mainContent = document.getElementById('main-content');
+      
+      let html = `
+        <div class="container animate-fadeIn">
+          <div class="welcome-card">
+            <h1 class="welcome-title">مرحباً بك في نظام إدارة الاستثمارات</h1>
+            <p class="welcome-subtitle">الإصدار 2.0 | <span id="current-date"></span></p>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="stats-card stats-card-primary">
+              <div class="icon-bg">
+                <i class="fas fa-coins"></i>
+              </div>
+              <p class="text-sm text-gray-500">إجمالي الاستثمارات</p>
+              <p class="text-xl font-bold">${numberWithCommas(dailySummary.totalInvestments)} د.ع</p>
+              <p class="text-xs text-blue-600 mt-1">${investors.length} مستثمر</p>
+              <div class="stats-trend up">
+                <i class="fas fa-arrow-up"></i>
+                <span>17.5%</span>
+              </div>
+            </div>
+            
+            <div class="stats-card stats-card-secondary">
+              <div class="icon-bg">
+                <i class="fas fa-hand-holding-usd"></i>
+              </div>
+              <p class="text-sm text-gray-500">إجمالي الأرباح المدفوعة</p>
+              <p class="text-xl font-bold">${numberWithCommas(dailySummary.totalPayouts)} د.ع</p>
+              <p class="text-xs text-green-600 mt-1">
+                ${getPayoutTransactionsCount()} عملية دفع
+              </p>
+              <div class="stats-trend down">
+                <i class="fas fa-arrow-down"></i>
+                <span>2.3%</span>
+              </div>
+            </div>
+            
+            <div class="stats-card stats-card-accent">
+              <div class="icon-bg">
+                <i class="fas fa-percentage"></i>
+              </div>
+              <p class="text-sm text-gray-500">الربح الشهري المتوقع</p>
+              <p class="text-xl font-bold">${numberWithCommas(calculateTotalMonthlyProfit())} د.ع</p>
+              <p class="text-xs text-yellow-600 mt-1">بنسبة ${profitRate}%</p>
+              <div class="stats-trend up">
+                <i class="fas fa-arrow-up"></i>
+                <span>5.2%</span>
+              </div>
+            </div>
+            
+            <div class="stats-card stats-card-danger">
+              <div class="icon-bg">
+                <i class="fas fa-money-bill-wave"></i>
+              </div>
+              <p class="text-sm text-gray-500">المصروفات الإدارية</p>
+              <p class="text-xl font-bold">${numberWithCommas(dailySummary.adminExpenses)} د.ع</p>
+              <p class="text-xs text-red-600 mt-1">
+                ${getAdminExpensesCount()} مصروف
+              </p>
+              <div class="stats-trend up">
+                <i class="fas fa-arrow-up"></i>
+                <span>3.8%</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+            <div class="lg:col-span-2">
+              <div class="card p-4">
+                <div class="flex justify-between items-center mb-3">
+                  <h2 class="font-bold text-lg">تحليل الاستثمارات</h2>
+                  <div class="flex gap-2">
+                    <select id="chart-period-selector" class="form-select-sm">
+                      <option value="month">آخر شهر</option>
+                      <option value="quarter">آخر 3 أشهر</option>
+                      <option value="year" selected>العام الحالي</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="chart-container">
+                  <canvas id="investments-chart" height="250"></canvas>
+                </div>
+              </div>
+            </div>
+            
+            <div class="lg:col-span-1">
+              <div class="card p-4">
+                <h2 class="font-bold text-lg mb-3">توزيع الاستثمارات</h2>
+                <div class="chart-container">
+                  <canvas id="investment-distribution-chart" height="220"></canvas>
+                </div>
+                <div class="chart-legend mt-3" id="investment-distribution-legend">
+                  <!-- سيتم إضافة العناصر هنا ديناميكياً -->
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="col-span-2">
+              <div class="flex justify-between items-center mb-2">
+                <h2 class="font-bold">الإشعارات والمدفوعات القادمة</h2>
+                <span class="badge badge-primary">${notifications.length}</span>
+              </div>
+              
+              <div class="card">
+      `;
+      
+      if (notifications.length > 0) {
+        for (const notification of notifications) {
+          let daysLeftClass = 'text-red-600';
+          if (notification.daysLeft > 3) {
+            daysLeftClass = 'text-yellow-600';
+          }
+          
+          html += `
+            <div class="notification-item">
+              <div class="flex justify-between items-center">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <div class="notification-icon ${notification.type === 'payment' ? 'payment' : 'alert'}">
+                      <i class="fas ${notification.type === 'payment' ? 'fa-calendar-check' : 'fa-exclamation-circle'}"></i>
+                    </div>
+                    <div>
+                      <p class="font-bold">${notification.name}</p>
+                      <p class="text-sm text-gray-500">تاريخ الدفع: ${formatDate(notification.date)}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-green-600">${numberWithCommas(notification.amount)} د.ع</p>
+                  <div class="flex items-center ${daysLeftClass}">
+                    <i class="fas fa-clock text-xs ml-1"></i>
+                    <p class="text-xs">متبقي ${notification.daysLeft} أيام</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      } else {
+        html += `
+          <div class="empty-state">
+            <i class="fas fa-bell-slash text-gray-400 text-4xl mb-2"></i>
+            <p>لا توجد مدفوعات قادمة هذا الأسبوع</p>
+          </div>
+        `;
+      }
+      
+      html += `
+              </div>
+            </div>
+            
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <h2 class="font-bold">إجراءات سريعة</h2>
+              </div>
+              <div class="card">
+                <div class="quick-actions-grid">
+                  <button class="quick-action-btn" id="quick-add-investor">
+                    <div class="quick-action-icon primary">
+                      <i class="fas fa-user-plus"></i>
+                    </div>
+                    <span>إضافة مستثمر</span>
+                  </button>
+                  
+                  <button class="quick-action-btn" id="quick-add-transaction">
+                    <div class="quick-action-icon secondary">
+                      <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <span>تسجيل معاملة</span>
+                  </button>
+                  
+                  <button class="quick-action-btn" id="quick-calc-profits">
+                    <div class="quick-action-icon accent">
+                      <i class="fas fa-calculator"></i>
+                    </div>
+                    <span>حاسبة الأرباح</span>
+                  </button>
+                  
+                  <button class="quick-action-btn" id="quick-admin-expense">
+                    <div class="quick-action-icon danger">
+                      <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <span>إضافة مصروف</span>
+                  </button>
+                  
+                  <button class="quick-action-btn" id="quick-export-data">
+                    <div class="quick-action-icon gray">
+                      <i class="fas fa-file-export"></i>
+                    </div>
+                    <span>تصدير البيانات</span>
+                  </button>
+                  
+                  <button class="quick-action-btn" id="quick-view-reports">
+                    <div class="quick-action-icon info">
+                      <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <span>عرض التقارير</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex justify-between items-center mb-2">
+            <h2 class="font-bold">أحدث المعاملات</h2>
+            <button class="btn btn-sm btn-outline-primary" id="view-all-transactions">
+              عرض الكل <i class="fas fa-arrow-left mr-1"></i>
+            </button>
+          </div>
+          
+          <div class="card mb-4 recent-transactions">
+      `;
+      
+      const recentTransactions = [...transactions].reverse().slice(0, 5);
+      
+      if (recentTransactions.length > 0) {
+        html += `<div class="transactions-list">`;
+        for (const transaction of recentTransactions) {
+          const investor = investors.find(inv => inv.id === transaction.investorId);
+          
+          html += `
+            <div class="transaction-item">
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                  <div class="transaction-icon ${getTransactionTypeClass(transaction.type)}">
+                    <i class="fas ${getTransactionIcon(transaction.type)}"></i>
+                  </div>
+                  <div>
+                    <p class="font-bold">${investor ? investor.name : 'مصروف إداري'}</p>
+                    <p class="text-sm text-gray-500">${formatDate(transaction.date)}</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold ${getTransactionColorClass(transaction.type)}">
+                    ${transaction.type === 'payout' || transaction.type === 'partial-payout' || transaction.type === 'admin' || transaction.type === 'withdrawal' ? '-' : '+'}${numberWithCommas(transaction.amount)} د.ع
+                  </p>
+                  <p class="text-xs">
+                    ${getTransactionTypeName(transaction.type)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+        html += `</div>`;
+      } else {
+        html += `
+          <div class="empty-state">
+            <i class="fas fa-exchange-alt text-gray-400 text-4xl mb-2"></i>
+            <p>لا توجد معاملات مسجلة</p>
+            <button class="btn btn-primary mt-3" id="add-first-transaction">
+              <i class="fas fa-plus ml-1"></i>
+              تسجيل أول معاملة
+            </button>
+          </div>
+        `;
+      }
+      
+      html += `
+          </div>
+        </div>
+      `;
+      
+      mainContent.innerHTML = html;
+      
+      // تعيين التاريخ الحالي
+      document.getElementById('current-date').textContent = formatDateLong(new Date());
+      
+      // إضافة المستمعين للأحداث
+      document.getElementById('view-all-transactions')?.addEventListener('click', () => {
+        navigateTo('transactions');
+      });
+      
+      document.getElementById('add-first-transaction')?.addEventListener('click', () => {
+        showAddTransactionModal('investment');
+      });
+      
+      // الإجراءات السريعة
+      document.getElementById('quick-add-investor')?.addEventListener('click', () => {
+        showAddInvestorModal();
+      });
+      
+      document.getElementById('quick-add-transaction')?.addEventListener('click', () => {
+        showAddTransactionModal('investment');
+      });
+      
+      document.getElementById('quick-calc-profits')?.addEventListener('click', () => {
+        showProfitCalculator();
+      });
+      
+      document.getElementById('quick-admin-expense')?.addEventListener('click', () => {
+        showAddAdminExpenseModal();
+      });
+      
+      document.getElementById('quick-export-data')?.addEventListener('click', () => {
+        showExportOptionsModal();
+      });
+      
+      document.getElementById('quick-view-reports')?.addEventListener('click', () => {
+        navigateTo('reports');
+      });
+      
+      // تفعيل تغيير فترة الرسم البياني
+      document.getElementById('chart-period-selector')?.addEventListener('change', (e) => {
+        renderInvestmentsChart(e.target.value);
+      });
+      
+      // إنشاء الرسوم البيانية
+      setTimeout(() => {
+        renderInvestmentsChart('year');
+        renderInvestmentDistributionChart();
+      }, 100);
+    };
+    
+    // إنشاء رسم بياني للاستثمارات
+    const renderInvestmentsChart = (period) => {
+      const ctx = document.getElementById('investments-chart');
+      if (!ctx) return;
+      
+      // تحديد النطاق الزمني
+      const now = new Date();
+      let startDate = new Date();
+      let timeFormat = 'MM/yyyy';
+      let timeUnit = 'month';
+      
+      if (period === 'month') {
+        startDate.setMonth(now.getMonth() - 1);
+        timeFormat = 'dd/MM';
+        timeUnit = 'day';
+      } else if (period === 'quarter') {
+        startDate.setMonth(now.getMonth() - 3);
+        timeFormat = 'MM/yyyy';
+        timeUnit = 'month';
+      } else { // year
+        startDate.setMonth(0); // بداية العام الحالي
+        timeFormat = 'MM/yyyy';
+        timeUnit = 'month';
+      }
+      
+      // جمع بيانات الاستثمارات والمدفوعات
+      const investmentData = [];
+      const payoutData = [];
+      
+      // في حالة اختيار فترة يوم، عرض آخر 30 يوم
+      if (period === 'month') {
+        for (let i = 0; i < 30; i++) {
+          const date = new Date();
+          date.setDate(date.getDate() - (29 - i));
+          const dateStr = date.toISOString().substring(0, 10);
+          
+          // حساب إجمالي الاستثمارات والمدفوعات لهذا اليوم
+          const dailyInvestments = transactions
+            .filter(t => t.date.substring(0, 10) === dateStr && t.type === 'investment')
+            .reduce((sum, t) => sum + t.amount, 0);
+            
+          const dailyPayouts = transactions
+            .filter(t => t.date.substring(0, 10) === dateStr && 
+                        (t.type === 'payout' || t.type === 'partial-payout'))
+            .reduce((sum, t) => sum + t.amount, 0);
+          
+          investmentData.push({
+            x: dateStr,
+            y: dailyInvestments
+          });
+          
+          payoutData.push({
+            x: dateStr,
+            y: dailyPayouts
+          });
+        }
+      } else {
+        // في حالة اختيار فترة شهر أو سنة
+        const monthData = {};
+        
+        transactions.forEach(transaction => {
+          const transDate = new Date(transaction.date);
+          if (transDate >= startDate && transDate <= now) {
+            const monthKey = `${transDate.getFullYear()}-${String(transDate.getMonth() + 1).padStart(2, '0')}`;
+            
+            if (!monthData[monthKey]) {
+              monthData[monthKey] = {
+                investments: 0,
+                payouts: 0
+              };
+            }
+            
+            if (transaction.type === 'investment') {
+              monthData[monthKey].investments += transaction.amount;
+            } else if (transaction.type === 'payout' || transaction.type === 'partial-payout') {
+              monthData[monthKey].payouts += transaction.amount;
+            }
+          }
+        });
+        
+        // ترتيب البيانات حسب الشهر
+        const sortedMonths = Object.keys(monthData).sort();
+        
+        sortedMonths.forEach(month => {
+          const [year, monthNum] = month.split('-');
+          const dateStr = `${monthNum}/${year}`;
+          
+          investmentData.push({
+            x: dateStr,
+            y: monthData[month].investments
+          });
+          
+          payoutData.push({
+            x: dateStr,
+            y: monthData[month].payouts
+          });
+        });
+      }
+      
+      // إعادة تعيين الرسم البياني إذا كان موجوداً
+      if (activeInvestmentsChart) {
+        activeInvestmentsChart.destroy();
+      }
+      
+      // إنشاء الرسم البياني الجديد
+      activeInvestmentsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          datasets: [
+            {
+              label: 'الاستثمارات',
+              data: investmentData,
+              backgroundColor: 'rgba(59, 130, 246, 0.7)',
+              borderColor: 'rgba(59, 130, 246, 1)',
+              borderWidth: 1
+            },
+            {
+              label: 'المدفوعات',
+              data: payoutData,
+              backgroundColor: 'rgba(239, 68, 68, 0.7)',
+              borderColor: 'rgba(239, 68, 68, 1)',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          interaction: {
+            mode: 'index',
+            intersect: false,
+          },
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                unit: timeUnit,
+                displayFormats: {
+                  day: 'dd/MM',
+                  month: 'MM/yyyy'
+                },
+                tooltipFormat: timeFormat
+              },
+              title: {
+                display: true,
+                text: 'الفترة الزمنية'
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'المبلغ (د.ع)'
+              },
+              ticks: {
+                callback: function(value) {
+                  return numberWithCommas(value) + ' د.ع';
+                }
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  label += numberWithCommas(context.parsed.y) + ' د.ع';
+                  return label;
+                }
+              }
+            }
+          }
+        }
+      });
+    };
+    
+    // إنشاء مخطط توزيع الاستثمارات
+    const renderInvestmentDistributionChart = () => {
+      const ctx = document.getElementById('investment-distribution-chart');
+      if (!ctx) return;
+      
+      // تصنيف المستثمرين إلى فئات حسب حجم الاستثمار
+      const categories = {
+        'أقل من 5 مليون': { count: 0, total: 0, color: 'rgba(59, 130, 246, 0.7)' },
+        '5 - 10 مليون': { count: 0, total: 0, color: 'rgba(16, 185, 129, 0.7)' },
+        '10 - 50 مليون': { count: 0, total: 0, color: 'rgba(245, 158, 11, 0.7)' },
+        'أكثر من 50 مليون': { count: 0, total: 0, color: 'rgba(239, 68, 68, 0.7)' }
+      };
+      
+      investors.forEach(investor => {
+        if (investor.amount < 5000000) {
+          categories['أقل من 5 مليون'].count++;
+          categories['أقل من 5 مليون'].total += investor.amount;
+        } else if (investor.amount < 10000000) {
+          categories['5 - 10 مليون'].count++;
+          categories['5 - 10 مليون'].total += investor.amount;
+        } else if (investor.amount < 50000000) {
+          categories['10 - 50 مليون'].count++;
+          categories['10 - 50 مليون'].total += investor.amount;
+        } else {
+          categories['أكثر من 50 مليون'].count++;
+          categories['أكثر من 50 مليون'].total += investor.amount;
+        }
+      });
+      
+      const labels = Object.keys(categories);
+      const data = labels.map(label => categories[label].total);
+      const backgroundColors = labels.map(label => categories[label].color);
+      
+      // إنشاء الرسم البياني
+      const chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: backgroundColors,
+            borderColor: 'white',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false,
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.parsed || 0;
+                  const percentage = ((value / data.reduce((a, b) => a + b, 0)) * 100).toFixed(1);
+                  const count = categories[label].count;
+                  return `${label}: ${numberWithCommas(value)} د.ع (${percentage}%) - ${count} مستثمر`;
+                }
+              }
+            }
+          },
+          cutout: '60%'
+        }
+      });
+      
+      // إنشاء وسم المخطط
+      const legendContainer = document.getElementById('investment-distribution-legend');
+      if (legendContainer) {
+        legendContainer.innerHTML = '';
+        
+        labels.forEach(label => {
+          const item = document.createElement('div');
+          item.className = 'legend-item';
+          
+          const color = document.createElement('span');
+          color.className = 'color-box';
+          color.style.backgroundColor = categories[label].color;
+          
+          const labelText = document.createElement('span');
+          labelText.textContent = label;
+          
+          const value = document.createElement('span');
+          value.textContent = `${numberWithCommas(categories[label].total)} د.ع`;
+          value.className = 'legend-value';
+          
+          item.appendChild(color);
+          item.appendChild(labelText);
+          item.appendChild(value);
+          legendContainer.appendChild(item);
+        });
+      }
+    };
+    
+    // محتوى صفحة المستثمرين
+    const renderInvestorsPage = () => {
+      const mainContent = document.getElementById('main-content');
+      
+      let html = `
+        <div class="container animate-fadeIn">
+          <div class="flex justify-between items-center mb-4">
+            <h1 class="page-title">
+              <i class="fas fa-users text-primary ml-2"></i>
+              المستثمرين
+            </h1>
+            <button 
+              class="btn btn-primary"
+              id="add-investor-btn"
+            >
+              <i class="fas fa-plus ml-1"></i> إضافة مستثمر
+            </button>
+          </div>
+          
+          <div class="filters-bar mb-4">
+            <div class="search-container">
+              <input 
+                type="text" 
+                id="investor-search"
+                placeholder="البحث عن مستثمر..." 
+                class="search-input"
+              />
+              <i class="fas fa-search search-icon"></i>
+            </div>
+            
+            <div class="filter-options">
+              <select id="sort-investors" class="form-select-sm">
+                <option value="amount-desc">ترتيب حسب المبلغ (الأعلى أولاً)</option>
+                <option value="amount-asc">ترتيب حسب المبلغ (الأقل أولاً)</option>
+                <option value="date-desc">ترتيب حسب تاريخ البدء (الأحدث)</option>
+                <option value="date-asc">ترتيب حسب تاريخ البدء (الأقدم)</option>
+                <option value="name-asc">ترتيب حسب الاسم (أ-ي)</option>
+              </select>
+              
+              <div class="view-toggle">
+                <button class="view-btn active" data-view="list" title="عرض قائمة">
+                  <i class="fas fa-list"></i>
+                </button>
+                <button class="view-btn" data-view="grid" title="عرض شبكة">
+                  <i class="fas fa-th-large"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="investors-summary mb-4">
+            <div class="summary-item primary">
+              <i class="fas fa-users"></i>
+              <div>
+                <span class="summary-value">${investors.length}</span>
+                <span class="summary-label">إجمالي المستثمرين</span>
+              </div>
+            </div>
+            
+            <div class="summary-item secondary">
+              <i class="fas fa-coins"></i>
+              <div>
+                <span class="summary-value">${numberWithCommas(dailySummary.totalInvestments)}</span>
+                <span class="summary-label">إجمالي الاستثمارات (د.ع)</span>
+              </div>
+            </div>
+            
+            <div class="summary-item accent">
+              <i class="fas fa-percentage"></i>
+              <div>
+                <span class="summary-value">${numberWithCommas(calculateTotalMonthlyProfit())}</span>
+                <span class="summary-label">الأرباح الشهرية (د.ع)</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card" id="investors-container">
+      `;
+      
+      if (investors.length > 0) {
+        html += `<div class="list-view" id="investors-list">`;
+        
+        // ترتيب المستثمرين حسب المبلغ (تنازلياً) افتراضياً
+        const sortedInvestors = [...investors].sort((a, b) => b.amount - a.amount);
+        
+        for (const investor of sortedInvestors) {
+          const monthlyProfit = calculateMonthlyProfit(investor.amount, getInvestorProfitRate(investor));
+          
+          // حساب عدد الأيام منذ بدء الاستثمار
+          const startDate = new Date(investor.startDate);
+          const currentDate = new Date();
+          const investmentDays = Math.floor((currentDate - startDate) / (1000 * 60 * 60 * 24));
+          
+          html += `
+            <div 
+              class="investor-item" 
+              data-id="${investor.id}"
+              data-amount="${investor.amount}"
+              data-date="${investor.startDate}"
+              data-name="${investor.name}"
+            >
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                  <div class="investor-avatar">
+                    ${investor.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 class="investor-name">${investor.name}</h3>
+                    <div class="flex items-center gap-3 text-sm text-gray-500 mt-1">
+                      <div class="flex items-center gap-1">
+                        <i class="fas fa-phone-alt text-xs"></i>
+                        <span>${investor.phone || 'غير متوفر'}</span>
+                      </div>
+                      <div class="flex items-center gap-1">
+                        <i class="fas fa-calendar-alt text-xs"></i>
+                        <span>${formatDate(investor.startDate)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="investor-amount">${numberWithCommas(investor.amount)} د.ع</div>
+                  <div class="investor-profit">${numberWithCommas(monthlyProfit)} د.ع شهرياً</div>
+                  <div class="investment-days">
+                    <i class="fas fa-clock text-xs ml-1"></i>
+                    <span>منذ ${investmentDays} يوم</span>
+                  </div>
+                </div>
+              </div>
+              <div class="investor-actions mt-2">
+                <button class="action-btn view-investor" data-id="${investor.id}" title="عرض التفاصيل">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="action-btn add-payment" data-id="${investor.id}" title="تسجيل دفع ربح">
+                  <i class="fas fa-hand-holding-usd"></i>
+                </button>
+                <button class="action-btn add-investment" data-id="${investor.id}" title="إضافة استثمار">
+                  <i class="fas fa-plus-circle"></i>
+                </button>
+                <button class="action-btn edit-investor" data-id="${investor.id}" title="تعديل البيانات">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }
+        
+        html += `</div>`;
+        
+        // عرض الشبكة (مخفي افتراضياً)
+        html += `<div class="grid-view hidden" id="investors-grid">`;
+        
+        for (const investor of sortedInvestors) {
+          const monthlyProfit = calculateMonthlyProfit(investor.amount, getInvestorProfitRate(investor));
+          
+          html += `
+            <div class="investor-card" data-id="${investor.id}">
+              <div class="investor-card-avatar">
+                ${investor.name.charAt(0)}
+              </div>
+              <h3 class="investor-card-name">${investor.name}</h3>
+              <div class="investor-card-amount">${numberWithCommas(investor.amount)} د.ع</div>
+              <div class="investor-card-profit">${numberWithCommas(monthlyProfit)} د.ع شهرياً</div>
+              <div class="investor-card-date">
+                <i class="fas fa-calendar-alt text-xs ml-1"></i>
+                <span>${formatDate(investor.startDate)}</span>
+              </div>
+              <div class="investor-card-actions">
+                <button class="action-btn view-investor" data-id="${investor.id}" title="عرض التفاصيل">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="action-btn add-payment" data-id="${investor.id}" title="تسجيل دفع ربح">
+                  <i class="fas fa-hand-holding-usd"></i>
+                </button>
+                <button class="action-btn edit-investor" data-id="${investor.id}" title="تعديل البيانات">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }
+        
+        html += `</div>`;
+      } else {
+        html += `
+          <div class="empty-state">
+            <i class="fas fa-users text-gray-400 text-5xl mb-3"></i>
+            <p class="text-gray-500 mb-4">لا يوجد مستثمرين. أضف مستثمر جديد للبدء.</p>
+            <button class="btn btn-primary" id="empty-add-investor-btn">
+              <i class="fas fa-user-plus ml-1"></i> إضافة مستثمر جديد
+            </button>
+          </div>
+        `;
+      }
+      
+      html += `
+          </div>
+        </div>
+      `;
+      
+      mainContent.innerHTML = html;
+      
+      // إضافة المستمعين للأحداث
+      document.getElementById('add-investor-btn')?.addEventListener('click', () => {
+        showAddInvestorModal();
+      });
+      
+      document.getElementById('empty-add-investor-btn')?.addEventListener('click', () => {
+        showAddInvestorModal();
+      });
+      
+      // مستمع البحث
+      document.getElementById('investor-search')?.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        filterInvestors(searchTerm);
+      });
+      
+      // مستمع ترتيب المستثمرين
+      document.getElementById('sort-investors')?.addEventListener('change', (e) => {
+        sortInvestors(e.target.value);
+      });
+      
+      // مستمع تبديل طريقة العرض
+      const viewButtons = document.querySelectorAll('.view-btn');
+      viewButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          viewButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          
+          const viewMode = btn.getAttribute('data-view');
+          toggleViewMode(viewMode);
+        });
+      });
+      
+      // إضافة المستمعين لعناصر المستثمرين
+      addInvestorItemListeners();
+    };
+    
+    // إضافة المستمعين لعناصر المستثمرين
+    const addInvestorItemListeners = () => {
+      // عرض تفاصيل المستثمر
+      document.querySelectorAll('.investor-item, .investor-card').forEach(item => {
+        item.addEventListener('click', (e) => {
+          if (!e.target.closest('.investor-actions, .investor-card-actions')) {
+            const investorId = item.getAttribute('data-id');
+            const investor = investors.find(inv => inv.id === investorId);
+            viewInvestorDetails(investor);
+          }
+        });
+      });
+      
+      // أزرار الإجراءات
+      document.querySelectorAll('.view-investor').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const investorId = btn.getAttribute('data-id');
+          const investor = investors.find(inv => inv.id === investorId);
+          viewInvestorDetails(investor);
+        });
+      });
+      
+      document.querySelectorAll('.add-payment').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const investorId = btn.getAttribute('data-id');
+          const investor = investors.find(inv => inv.id === investorId);
+          showAddTransactionModal('payout', investor);
+        });
+      });
+      
+      document.querySelectorAll('.add-investment').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const investorId = btn.getAttribute('data-id');
+          const investor = investors.find(inv => inv.id === investorId);
+          showAddTransactionModal('investment', investor);
+        });
+      });
+      
+      document.querySelectorAll('.edit-investor').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const investorId = btn.getAttribute('data-id');
+          const investor = investors.find(inv => inv.id === investorId);
+          editInvestor(investor);
+        });
+      });
+    };
+    
+    // تبديل طريقة عرض المستثمرين (قائمة/شبكة)
+    const toggleViewMode = (mode) => {
+      const listView = document.getElementById('investors-list');
+      const gridView = document.getElementById('investors-grid');
+      
+      if (mode === 'list') {
+        listView.classList.remove('hidden');
+        gridView.classList.add('hidden');
+      } else {
+        listView.classList.add('hidden');
+        gridView.classList.remove('hidden');
+      }
+    };
+    
+    // فلترة المستثمرين حسب البحث
+    const filterInvestors = (searchTerm) => {
+      const investorItems = document.querySelectorAll('.investor-item, .investor-card');
+      
+      investorItems.forEach(item => {
+        const investorId = item.getAttribute('data-id');
+        const investor = investors.find(inv => inv.id === investorId);
+        
+        if (investor.name.toLowerCase().includes(searchTerm) || 
+            (investor.phone && investor.phone.includes(searchTerm)) ||
+            (investor.notes && investor.notes.toLowerCase().includes(searchTerm))) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    };
+    
+    // ترتيب المستثمرين
+    const sortInvestors = (sortOption) => {
+      const listContainer = document.getElementById('investors-list');
+      const gridContainer = document.getElementById('investors-grid');
+      
+      if (!listContainer || !gridContainer) return;
+      
+      const listItems = Array.from(listContainer.querySelectorAll('.investor-item'));
+      const gridItems = Array.from(gridContainer.querySelectorAll('.investor-card'));
+      
+      listItems.sort((a, b) => {
+        const idA = a.getAttribute('data-id');
+        const idB = b.getAttribute('data-id');
+        const investorA = investors.find(inv => inv.id === idA);
+        const investorB = investors.find(inv => inv.id === idB);
+        
+        if (!investorA || !investorB) return 0;
+        
+        switch (sortOption) {
+          case 'amount-desc':
+            return investorB.amount - investorA.amount;
+          case 'amount-asc':
+            return investorA.amount - investorB.amount;
+          case 'date-desc':
+            return new Date(investorB.startDate) - new Date(investorA.startDate);
+          case 'date-asc':
+            return new Date(investorA.startDate) - new Date(investorB.startDate);
+          case 'name-asc':
+            return investorA.name.localeCompare(investorB.name);
+          default:
+            return investorB.amount - investorA.amount;
+        }
+      });
+      
+      // إعادة ترتيب عناصر القائمة
+      listItems.forEach(item => {
+        listContainer.appendChild(item);
+      });
+      
+      // إعادة ترتيب عناصر الشبكة
+      gridItems.sort((a, b) => {
+        const idA = a.getAttribute('data-id');
+        const idB = b.getAttribute('data-id');
+        const investorA = investors.find(inv => inv.id === idA);
+        const investorB = investors.find(inv => inv.id === idB);
+        
+        if (!investorA || !investorB) return 0;
+        
+        switch (sortOption) {
+          case 'amount-desc':
+            return investorB.amount - investorA.amount;
+          case 'amount-asc':
+            return investorA.amount - investorB.amount;
+          case 'date-desc':
+            return new Date(investorB.startDate) - new Date(investorA.startDate);
+          case 'date-asc':
+            return new Date(investorA.startDate) - new Date(investorB.startDate);
+          case 'name-asc':
+            return investorA.name.localeCompare(investorB.name);
+          default:
+            return investorB.amount - investorA.amount;
+        }
+      });
+      
+      gridItems.forEach(item => {
+        gridContainer.appendChild(item);
+      });
+    };
+    
+    // محتوى صفحة تفاصيل المستثمر
+    const renderInvestorDetailsPage = () => {
+      if (!selectedInvestor) {
+        navigateTo('investors');
+        return;
+      }
+      
+      const mainContent = document.getElementById('main-content');
+      
+      // الحصول على معاملات المستثمر
+      const investorTransactions = transactions.filter(
+        trans => trans.investorId === selectedInvestor.id
+      ).sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      // حساب إجمالي الاستثمارات والأرباح المدفوعة
+      const totalInvestments = investorTransactions
+        .filter(t => t.type === 'investment')
+        .reduce((sum, t) => sum + t.amount, 0);
+        
+      const totalPayouts = investorTransactions
+        .filter(t => t.type === 'payout' || t.type === 'partial-payout')
+        .reduce((sum, t) => sum + t.amount, 0);
+        
+      const totalWithdrawals = investorTransactions
+        .filter(t => t.type === 'withdrawal')
+        .reduce((sum, t) => sum + t.amount, 0);
+      
+      // حساب المدة بالأيام من تاريخ البدء
+      const startDate = new Date(selectedInvestor.startDate);
+      const currentDate = new Date();
+      const daysPassed = Math.floor((currentDate - startDate) / (1000 * 60 * 60 * 24));
+      const monthsPassed = Math.floor(daysPassed / 30);
+      
+      // الحصول على نسبة الربح المخصصة للمستثمر إن وجدت
+      const investorProfitRate = getInvestorProfitRate(selectedInvestor);
+      
+      // حساب الربح الشهري
+      const monthlyProfit = calculateMonthlyProfit(selectedInvestor.amount, investorProfitRate);
+      
+      // الحصول على تاريخ آخر دفعة
+      let lastPaymentDate = 'لا توجد دفعات سابقة';
+      let nextPaymentDueDate = '---';
+      
+      const payoutTransactions = investorTransactions.filter(
+        t => t.type === 'payout' || t.type === 'partial-payout'
+      );
+      
+      if (payoutTransactions.length > 0) {
+        const lastPayment = payoutTransactions[0]; // أول عنصر لأن المعاملات مرتبة تنازلياً
+        lastPaymentDate = formatDate(lastPayment.date);
+        
+        // حساب تاريخ الدفعة القادمة (بعد شهر من آخر دفعة)
+        const lastPaymentObj = new Date(lastPayment.date);
+        const nextPaymentObj = new Date(lastPaymentObj);
+        nextPaymentObj.setMonth(nextPaymentObj.getMonth() + 1);
+        nextPaymentDueDate = formatDate(nextPaymentObj.toISOString().substring(0, 10));
+      } else {
+        // إذا لم تكن هناك دفعات سابقة، يتم حساب تاريخ الدفعة الأولى (بعد شهر من تاريخ البدء)
+        const firstPaymentObj = new Date(startDate);
+        firstPaymentObj.setMonth(firstPaymentObj.getMonth() + 1);
+        nextPaymentDueDate = formatDate(firstPaymentObj.toISOString().substring(0, 10));
+      }
+      
+      let html = `
+        <div class="container animate-fadeIn">
+          <div class="flex items-center mb-4">
+            <button 
+              class="btn btn-icon btn-gray ml-2"
+              id="back-to-investors"
+            >
+              <i class="fas fa-arrow-right"></i>
+            </button>
+            <h1 class="page-title">تفاصيل المستثمر</h1>
+          </div>
+          
+          <div class="investor-details-card mb-4">
+            <div class="investor-details-header">
+              <div class="investor-details-avatar">
+                ${selectedInvestor.name.charAt(0)}
+              </div>
+              <div class="investor-details-info">
+                <h2 class="investor-details-name">${selectedInvestor.name}</h2>
+                <div class="investor-details-contact">
+                  ${selectedInvestor.phone ? `
+                    <div class="contact-item">
+                      <i class="fas fa-phone-alt"></i>
+                      <span>${selectedInvestor.phone}</span>
+                    </div>
+                  ` : ''}
+                  ${selectedInvestor.email ? `
+                    <div class="contact-item">
+                      <i class="fas fa-envelope"></i>
+                      <span>${selectedInvestor.email}</span>
+                    </div>
+                  ` : ''}
+                  <div class="contact-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>${formatDate(selectedInvestor.startDate)}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="investor-details-actions">
+                <button class="btn btn-icon btn-outline-primary" id="edit-investor" title="تعديل بيانات المستثمر">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-icon btn-outline-danger" id="delete-investor" title="حذف المستثمر">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div class="investor-details-meta">
+              <div class="meta-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <div>
+                  <p class="meta-label">العنوان</p>
+                  <p class="meta-value">${selectedInvestor.address || "غير متوفر"}</p>
+                </div>
+              </div>
+              
+              <div class="meta-item">
+                <i class="fas fa-id-card">d-cols-2 gap-2 mb-2">
+            <div>
+              <p class="text-xs text-gray-500">تاريخ آخر دفعة:</p>
+              <p id="last-payment-date" class="font-bold">--/--/----</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-500">تاريخ الدفعة القادمة:</p>
+              <p id="next-payment-date" class="font-bold">--/--/----</p>
+            </div>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">الفترة المستحقة:</p>
+            <p id="days-passed" class="font-bold"><span id="days-count">0</span> يوم من أصل 30 يوم</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500">المبلغ المستحق:</p>
+            <p id="calculated-amount" class="font-bold text-green-600">0 د.ع</p>
+          </div>
+          <div class="mt-2">
+            <button id="apply-calculated-amount" class="btn btn-sm btn-secondary w-full">
+              <i class="fas fa-check-circle ml-1"></i>
+              تطبيق المبلغ المحسوب
+            </button>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">طريقة الدفع</label>
+          <div class="input-with-icon">
+            <i class="fas fa-money-bill-wave"></i>
+            <select 
+              id="transaction-payment-method"
+              class="w-full has-icon"
+            >
+              <option value="cash">نقداً</option>
+              <option value="bank">تحويل بنكي</option>
+              <option value="check">شيك</option>
+              <option value="other">طريقة أخرى</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">ملاحظات</label>
+          <div class="input-with-icon textarea">
+            <i class="fas fa-sticky-note"></i>
+            <textarea 
+              id="transaction-notes"
+              class="w-full has-icon"
+              placeholder="أي ملاحظات إضافية"
+              rows="2"
+            ></textarea>
+          </div>
+        </div>
+        
+        <!-- ملخص معلومات المستثمر المحدد -->
+        <div id="selected-investor-summary" class="card-blue-light p-3 rounded-lg mb-4 hidden">
+          <div class="flex justify-between items-center">
+            <h3 class="font-bold" id="summary-investor-name">--</h3>
+            <span class="badge badge-green" id="summary-investment-days">0 يوم</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            <div class="text-sm">
+              <span class="text-gray-500">مبلغ الاستثمار:</span>
+              <span class="font-bold" id="summary-investment-amount">0 د.ع</span>
+            </div>
+            <div class="text-sm">
+              <span class="text-gray-500">الربح الشهري:</span>
+              <span class="font-bold text-green-600" id="summary-monthly-profit">0 د.ع</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button 
+          class="btn btn-gray"
+          id="cancel-add-transaction"
+        >
+          إلغاء
+        </button>
+        <button 
+          class="btn btn-primary"
+          id="confirm-add-transaction"
+        >
+          <i class="fas fa-check-circle ml-2"></i>
+          تسجيل
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة عرض الإشعارات -->
+  <div id="notifications-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">الإشعارات</h2>
+        <div class="flex items-center gap-2">
+          <button id="mark-all-read" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-check-double ml-1"></i>
+            تحديد الكل كمقروء
+          </button>
+          <button class="modal-close" id="close-notifications-modal">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="modal-body" id="notifications-container">
+        <div class="empty-state">
+          <i class="fas fa-bell-slash text-gray-400 text-4xl mb-2"></i>
+          <p>لا توجد إشعارات جديدة</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة حاسبة الأرباح -->
+  <div id="profit-calculator-modal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">حاسبة الأرباح</h2>
+        <button class="modal-close" id="close-calculator-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="normal-calc">حساب عادي</button>
+          <button class="tab-btn" data-tab="daily-calc">حساب الأيام</button>
+        </div>
+        
+        <div class="tab-content active" id="normal-calc">
+          <div class="form-group">
+            <label class="form-label">مبلغ الاستثمار (د.ع)</label>
+            <div class="input-with-icon">
+              <i class="fas fa-coins"></i>
+              <input 
+                type="number" 
+                id="calc-investment-amount"
+                class="w-full has-icon"
+                placeholder="أدخل مبلغ الاستثمار"
+              />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">نسبة الربح الشهرية (%)</label>
+            <div class="input-with-icon">
+              <i class="fas fa-percentage"></i>
+              <input 
+                type="number"
+                id="calc-profit-rate"
+                class="w-full has-icon"
+                value="17.5"
+                step="0.1"
+              />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">مدة الاستثمار (بالأشهر)</label>
+            <div class="input-with-icon">
+              <i class="fas fa-calendar-alt"></i>
+              <input 
+                type="number"
+                id="calc-duration"
+                class="w-full has-icon"
+                value="12"
+                min="1"
+                max="60"
+              />
+            </div>
+            
+            <div class="range-slider mt-2">
+              <input 
+                type="range" 
+                id="duration-slider" 
+                min="1" 
+                max="60" 
+                value="12"
+              >
+              <div class="range-marks">
+                <span>1</span>
+                <span>12</span>
+                <span>24</span>
+                <span>36</span>
+                <span>60</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="result-container" id="result-container">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle text-blue-600"></i>
+              <div>
+                <p class="font-bold">الربح الشهري:</p>
+                <p id="calc-monthly-profit">- - -</p>
+              </div>
+            </div>
+            
+            <div class="alert alert-success mt-2">
+              <i class="fas fa-check-circle text-green-600"></i>
+              <div>
+                <p class="font-bold">إجمالي الربح:</p>
+                <p id="calc-total-profit">- - -</p>
+              </div>
+            </div>
+            
+            <div class="alert alert-accent mt-2">
+              <i class="fas fa-money-bill-wave text-yellow-600"></i>
+              <div>
+                <p class="font-bold">المبلغ النهائي:</p>
+                <p id="calc-final-amount">- - -</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tab-content" id="daily-calc">
+          <div class="form-group">
+            <label class="form-label">مبلغ الاستثمار (د.ع)</label>
+            <div class="input-with-icon">
+              <i class="fas fa-coins"></i>
+              <input 
+                type="number" 
+                id="daily-calc-investment-amount"
+                class="w-full has-icon"
+                placeholder="أدخل مبلغ الاستثمار"
+              />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">نسبة الربح الشهرية (%)</label>
+            <div class="input-with-icon">
+              <i class="fas fa-percentage"></i>
+              <input 
+                type="number"
+                id="daily-calc-profit-rate"
+                class="w-full has-icon"
+                value="17.5"
+                step="0.1"
+              />
+            </div>
+          </div>
+          
+          <div class="grid gri

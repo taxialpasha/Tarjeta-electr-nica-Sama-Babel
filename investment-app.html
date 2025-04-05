@@ -1,0 +1,1985 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام إدارة الاستثمارات</title>
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* General styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f3f4f6;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* Header */
+    header {
+      background-color: #2563eb;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+
+    /* Container */
+    .container {
+      padding: 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Cards */
+    .card {
+      background-color: white;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+      padding: 1rem;
+    }
+
+    .card-title {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      font-size: 1.125rem;
+    }
+
+    .card-blue-light {
+      background-color: #e0f2fe;
+    }
+
+    .card-green-light {
+      background-color: #dcfce7;
+    }
+
+    /* Grid and flex layouts */
+    .grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .grid-cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .flex-col {
+      flex-direction: column;
+    }
+
+    .items-center {
+      align-items: center;
+    }
+
+    .justify-between {
+      justify-content: space-between;
+    }
+
+    .justify-center {
+      justify-content: center;
+    }
+
+    .justify-around {
+      justify-content: space-around;
+    }
+
+    .gap-1 {
+      gap: 0.25rem;
+    }
+
+    .gap-2 {
+      gap: 0.5rem;
+    }
+
+    .gap-4 {
+      gap: 1rem;
+    }
+
+    .flex-1 {
+      flex: 1;
+    }
+
+    /* Text styles */
+    .text-center {
+      text-align: center;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    .text-left {
+      text-align: left;
+    }
+
+    .font-bold {
+      font-weight: bold;
+    }
+
+    .font-medium {
+      font-weight: 500;
+    }
+
+    .text-xl {
+      font-size: 1.25rem;
+    }
+
+    .text-lg {
+      font-size: 1.125rem;
+    }
+
+    .text-sm {
+      font-size: 0.875rem;
+    }
+
+    .text-xs {
+      font-size: 0.75rem;
+    }
+
+    .text-gray-500 {
+      color: #6b7280;
+    }
+
+    .text-green-600 {
+      color: #059669;
+    }
+
+    .text-red-600 {
+      color: #dc2626;
+    }
+
+    .text-blue-600 {
+      color: #2563eb;
+    }
+
+    .text-white {
+      color: white;
+    }
+
+    /* Spacing */
+    .p-1 {
+      padding: 0.25rem;
+    }
+
+    .p-2 {
+      padding: 0.5rem;
+    }
+
+    .p-3 {
+      padding: 0.75rem;
+    }
+
+    .p-4 {
+      padding: 1rem;
+    }
+
+    .px-4 {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .py-2 {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+
+    .py-4 {
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+    }
+
+    .py-6 {
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
+    }
+
+    .mb-1 {
+      margin-bottom: 0.25rem;
+    }
+
+    .mb-2 {
+      margin-bottom: 0.5rem;
+    }
+
+    .mb-3 {
+      margin-bottom: 0.75rem;
+    }
+
+    .mb-4 {
+      margin-bottom: 1rem;
+    }
+
+    .mb-6 {
+      margin-bottom: 1.5rem;
+    }
+
+    .mt-1 {
+      margin-top: 0.25rem;
+    }
+
+    .ml-1 {
+      margin-left: 0.25rem;
+    }
+
+    .ml-2 {
+      margin-left: 0.5rem;
+    }
+
+    /* Borders */
+    .border {
+      border: 1px solid #e5e7eb;
+    }
+
+    .border-b {
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .border-gray-200 {
+      border-color: #e5e7eb;
+    }
+
+    .border-gray-300 {
+      border-color: #d1d5db;
+    }
+
+    .rounded-lg {
+      border-radius: 0.5rem;
+    }
+
+    /* Form elements */
+    input, select, textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 500;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+      transition: background-color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-blue {
+      background-color: #2563eb;
+      color: white;
+    }
+
+    .btn-green {
+      background-color: #10b981;
+      color: white;
+    }
+
+    .btn-red {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    .btn-gray {
+      background-color: #9ca3af;
+      color: white;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    /* Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: white;
+      box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.1);
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.5rem;
+      color: #6b7280;
+      text-decoration: none;
+    }
+
+    .nav-item.active {
+      color: #2563eb;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      width: 100%;
+      max-width: 28rem;
+      margin: 0 1rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .grid-cols-2, .grid-cols-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* Other utility classes */
+    .w-full {
+      width: 100%;
+    }
+
+    .relative {
+      position: relative;
+    }
+
+    .absolute {
+      position: absolute;
+    }
+
+    .right-3 {
+      right: 0.75rem;
+    }
+
+    .top-3 {
+      top: 0.75rem;
+    }
+
+    .shadow {
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .shadow-lg {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .cursor-pointer {
+      cursor: pointer;
+    }
+
+    .inset-0 {
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+
+    .fixed {
+      position: fixed;
+    }
+
+    .z-10 {
+      z-index: 10;
+    }
+
+    .bg-opacity-50 {
+      --bg-opacity: 0.5;
+    }
+
+    .overflow-x-auto {
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- رأس الصفحة -->
+  <header>
+    <h1>نظام إدارة الاستثمارات</h1>
+  </header>
+
+  <!-- المحتوى الرئيسي -->
+  <main id="main-content">
+    <!-- يتم تحميل المحتوى هنا ديناميكيًا -->
+  </main>
+
+  <!-- القائمة السفلية -->
+  <nav class="bottom-nav">
+    <div class="flex justify-around">
+      <button id="nav-home" class="nav-item active">
+        <i class="fas fa-home"></i>
+        <span class="text-xs mt-1">الرئيسية</span>
+      </button>
+      <button id="nav-investors" class="nav-item">
+        <i class="fas fa-users"></i>
+        <span class="text-xs mt-1">المستثمرين</span>
+      </button>
+      <button id="nav-transactions" class="nav-item">
+        <i class="fas fa-dollar-sign"></i>
+        <span class="text-xs mt-1">المعاملات</span>
+      </button>
+      <button id="nav-reports" class="nav-item">
+        <i class="fas fa-chart-pie"></i>
+        <span class="text-xs mt-1">التقارير</span>
+      </button>
+      <button id="nav-settings" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span class="text-xs mt-1">الإعدادات</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- النوافذ المنبثقة -->
+  <div id="add-investor-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <h2 class="text-lg font-bold mb-4 text-center" id="investor-modal-title">إضافة مستثمر جديد</h2>
+      
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">الاسم الكامل*</label>
+        <input 
+          type="text" 
+          id="new-investor-name"
+          class="w-full p-2 border border-gray-300 rounded-lg"
+          placeholder="أدخل اسم المستثمر"
+        />
+      </div>
+      
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">رقم الهاتف</label>
+        <input 
+          type="tel" 
+          id="new-investor-phone"
+          class="w-full p-2 border border-gray-300 rounded-lg"
+          placeholder="أدخل رقم الهاتف"
+        />
+      </div>
+      
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">العنوان</label>
+        <input 
+          type="text" 
+          id="new-investor-address"
+          class="w-full p-2 border border-gray-300 rounded-lg"
+          placeholder="أدخل عنوان المستثمر"
+        />
+      </div>
+      
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">مبلغ الاستثمار (د.ع)*</label>
+        <input 
+          type="number" 
+          id="new-investor-amount"
+          class="w-full p-2 border border-gray-300 rounded-lg"
+          placeholder="أدخل مبلغ الاستثمار"
+        />
+      </div>
+      
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">تاريخ بدء الاستثمار*</label>
+        <input 
+          type="date" 
+          id="new-investor-start-date"
+          class="w-full p-2 border border-gray-300 rounded-lg"
+        />
+      </div>
+      
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">رقم الهوية/البطاقة الشخصية</label>
+        <input 
+          type="text" 
+          id="new-investor-id-card"
+          class="w-full p-2 border border-gray-300 rounded-lg"
+          placeholder="أدخل رقم بطاقة الهوية"
+        />
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1">ملاحظات</label>
+        <textarea 
+          id="new-investor-notes"
+          class="w-full p-2 border border-gray-300 rounded-lg"
+          placeholder="أي ملاحظات إضافية"
+          rows="2"
+        ></textarea>
+      </div>
+      
+      <input type="hidden" id="edit-investor-id" value="" />
+      
+      <div class="flex justify-between gap-2">
+        <button 
+          class="flex-1 btn btn-gray"
+          id="cancel-add-investor"
+        >
+          إلغاء
+        </button>
+        <button 
+          class="flex-1 btn btn-blue"
+          id="confirm-add-investor"
+        >
+          إضافة
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="add-transaction-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <h2 class="text-lg font-bold mb-4 text-center" id="transaction-modal-title">
+        إضافة معاملة جديدة
+      </h2>
+      
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">المستثمر*</label>
+        <select 
+          id="transaction-investor-id"
+          class="w-full p-2 border border-gray-300 rounded-lg"
+        >
+          <option value="">اختر المستثمر</option>
+          <!-- يتم إضافة الخيارات ديناميكيًا -->
+        </select>
+      </div>
+      
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">نوع المعاملة</label>
+        <select 
+          id="transaction-type"
+          class="w-full p-2 border border-gray-300 rounded-lg"
+        >
+          <option value="payout">دفع ربح</option>
+          <option value="investment">استثمار</option>
+        </select>
+      </div>
+      
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">المبلغ (د.ع)*</label>
+        <input 
+          type="number" 
+          id="transaction-amount"
+          class="w-full p-2 border border-gray-300 rounded-lg"
+          placeholder="أدخل المبلغ"
+        />
+      </div>
+      
+      <div class="mb-3">
+        <label class="block text-sm font-medium mb-1">التاريخ</label>
+        <input 
+          type="date" 
+          id="transaction-date"
+          class="w-full p-2 border border-gray-300 rounded-lg"
+        />
+      </div>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium mb-1">ملاحظات</label>
+        <textarea 
+          id="transaction-notes"
+          class="w-full p-2 border border-gray-300 rounded-lg"
+          placeholder="أي ملاحظات إضافية"
+          rows="2"
+        ></textarea>
+      </div>
+      
+      <div class="flex justify-between gap-2">
+        <button 
+          class="flex-1 btn btn-gray"
+          id="cancel-add-transaction"
+        >
+          إلغاء
+        </button>
+        <button 
+          class="flex-1 btn btn-blue"
+          id="confirm-add-transaction"
+        >
+          تسجيل
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // البيانات الرئيسية للتطبيق
+    let investors = [];
+    let transactions = [];
+    let profitRate = 17.5;
+    let currentPage = 'home';
+    let selectedInvestor = null;
+    
+    // ملخص البيانات المالية
+    let dailySummary = {
+      totalInvestments: 0,
+      totalPayouts: 0,
+      adminExpenses: 0
+    };
+    
+    // الإشعارات
+    let notifications = [];
+    
+    // التاريخ الحالي
+    const getCurrentDate = () => {
+      const now = new Date();
+      return now.toISOString().substr(0, 10);
+    };
+    
+    // محتوى الصفحة الرئيسية
+    const renderHomePage = () => {
+      const mainContent = document.getElementById('main-content');
+      
+      let html = `
+        <div class="container">
+          <h1 class="text-2xl font-bold mb-6 text-center">لوحة التحكم</h1>
+          
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="card card-blue-light">
+              <h3 class="font-bold text-center">إجمالي الاستثمارات</h3>
+              <p class="text-xl text-center">${numberWithCommas(dailySummary.totalInvestments)} د.ع</p>
+            </div>
+            <div class="card card-green-light">
+              <h3 class="font-bold text-center">إجمالي الأرباح المدفوعة</h3>
+              <p class="text-xl text-center">${numberWithCommas(dailySummary.totalPayouts)} د.ع</p>
+            </div>
+          </div>
+          
+          <h2 class="font-bold mb-2">الإشعارات</h2>
+          <div class="card mb-6">
+      `;
+      
+      if (notifications.length > 0) {
+        for (const notification of notifications) {
+          html += `
+            <div class="border-b border-gray-200 py-2">
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="font-bold">${notification.name}</p>
+                  <p class="text-sm">تاريخ الدفع: ${notification.date}</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold text-green-600">${numberWithCommas(notification.amount)} د.ع</p>
+                  <p class="text-xs text-red-600">متبقي ${notification.daysLeft} أيام</p>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      } else {
+        html += `<p class="text-center py-4">لا توجد مدفوعات قادمة هذا الأسبوع</p>`;
+      }
+      
+      html += `
+          </div>
+          
+          <h2 class="font-bold mb-2">أحدث المعاملات</h2>
+          <div class="card">
+      `;
+      
+      const recentTransactions = [...transactions].reverse().slice(0, 3);
+      
+      if (recentTransactions.length > 0) {
+        for (const transaction of recentTransactions) {
+          const investor = investors.find(inv => inv.id === transaction.investorId);
+          
+          html += `
+            <div class="border-b border-gray-200 py-2">
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="font-bold">${investor ? investor.name : 'مصروف إداري'}</p>
+                  <p class="text-sm">${transaction.date}</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold ${transaction.type === 'payout' || transaction.type === 'admin' ? 'text-red-600' : 'text-green-600'}">
+                    ${transaction.type === 'payout' || transaction.type === 'admin' ? '-' : '+'}${numberWithCommas(transaction.amount)} د.ع
+                  </p>
+                  <p class="text-xs">
+                    ${transaction.type === 'investment' ? 'استثمار' : transaction.type === 'payout' ? 'ربح' : 'مصروف'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      } else {
+        html += `<p class="text-center py-4">لا توجد معاملات مسجلة</p>`;
+      }
+      
+      html += `
+          </div>
+        </div>
+      `;
+      
+      mainContent.innerHTML = html;
+    };
+    
+    // محتوى صفحة المستثمرين
+    const renderInvestorsPage = () => {
+      const mainContent = document.getElementById('main-content');
+      
+      let html = `
+        <div class="container">
+          <div class="flex justify-between items-center mb-4">
+            <h1 class="text-xl font-bold">المستثمرين</h1>
+            <button 
+              class="btn btn-blue"
+              id="add-investor-btn"
+            >
+              <i class="fas fa-plus ml-1"></i> إضافة مستثمر
+            </button>
+          </div>
+          
+          <div class="relative mb-4">
+            <input 
+              type="text" 
+              id="investor-search"
+              placeholder="بحث عن مستثمر..." 
+              class="w-full p-2 pr-10 border border-gray-300 rounded-lg"
+            />
+            <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+          </div>
+          
+          <div class="card" id="investors-list">
+      `;
+      
+      if (investors.length > 0) {
+        for (const investor of investors) {
+          html += `
+            <div 
+              class="border-b border-gray-200 p-3 cursor-pointer investor-item" 
+              data-id="${investor.id}"
+            >
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="font-bold">${investor.name}</p>
+                  <p class="text-sm">${investor.phone || ''}</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold">${numberWithCommas(investor.amount)} د.ع</p>
+                  <p class="text-sm text-green-600">${numberWithCommas(calculateMonthlyProfit(investor.amount))} د.ع شهريًا</p>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      } else {
+        html += `<p class="text-center py-6">لا يوجد مستثمرين. أضف مستثمر جديد للبدء.</p>`;
+      }
+      
+      html += `
+          </div>
+        </div>
+      `;
+      
+      mainContent.innerHTML = html;
+      
+      // إضافة المستمعين للأحداث
+      document.getElementById('add-investor-btn').addEventListener('click', () => {
+        showAddInvestorModal();
+      });
+      
+      document.getElementById('investor-search').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const investorItems = document.getElementsByClassName('investor-item');
+        
+        Array.from(investorItems).forEach(item => {
+          const investorId = item.getAttribute('data-id');
+          const investor = investors.find(inv => inv.id === investorId);
+          
+          if (investor.name.toLowerCase().includes(searchTerm) || 
+              (investor.phone && investor.phone.includes(searchTerm))) {
+            item.style.display = 'block';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+      
+      // إضافة المستمعين لعناصر المستثمرين
+      const investorItems = document.getElementsByClassName('investor-item');
+      Array.from(investorItems).forEach(item => {
+        item.addEventListener('click', () => {
+          const investorId = item.getAttribute('data-id');
+          const investor = investors.find(inv => inv.id === investorId);
+          viewInvestorDetails(investor);
+        });
+      });
+    };
+    
+// محتوى صفحة تفاصيل المستثمر
+const renderInvestorDetailsPage = () => {
+  if (!selectedInvestor) {
+    navigateTo('investors');
+    return;
+  }
+  
+  const mainContent = document.getElementById('main-content');
+  
+  // الحصول على معاملات المستثمر
+  const investorTransactions = transactions.filter(
+    trans => trans.investorId === selectedInvestor.id
+  );
+  
+  let html = `
+    <div class="container">
+      <div class="flex items-center mb-4">
+        <button 
+          class="ml-2"
+          id="back-to-investors"
+        >
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <h1 class="text-xl font-bold">تفاصيل المستثمر</h1>
+      </div>
+      
+      <div class="card mb-4">
+        <div class="flex justify-between mb-2">
+          <h2 class="text-lg font-bold">${selectedInvestor.name}</h2>
+          <div class="flex">
+            <button class="ml-2 text-blue-600" id="edit-investor">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="text-red-600" id="delete-investor">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-2 mb-4">
+          <div>
+            <p class="text-sm text-gray-500">رقم الهاتف</p>
+            <p>${selectedInvestor.phone || "غير متوفر"}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">العنوان</p>
+            <p>${selectedInvestor.address || "غير متوفر"}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">رقم الهوية</p>
+            <p>${selectedInvestor.idCard || "غير متوفر"}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">تاريخ البدء</p>
+            <p>${selectedInvestor.startDate}</p>
+          </div>
+        </div>
+        
+        <div class="card-blue-light p-3 rounded-lg mb-4">
+          <div class="flex justify-between mb-1">
+            <p class="font-medium">مبلغ الاستثمار</p>
+            <p class="font-bold">${numberWithCommas(selectedInvestor.amount)} د.ع</p>
+          </div>
+          <div class="flex justify-between">
+            <p class="font-medium">الربح الشهري (${profitRate}%)</p>
+            <p class="font-bold text-green-600">
+              ${numberWithCommas(calculateMonthlyProfit(selectedInvestor.amount))} د.ع
+            </p>
+          </div>
+        </div>
+        
+        <div class="flex gap-2">
+          <button 
+            class="flex-1 btn btn-green"
+            id="add-payout-btn"
+          >
+            <i class="fas fa-dollar-sign ml-1"></i>
+            تسجيل دفع ربح
+          </button>
+          <button 
+            class="flex-1 btn btn-blue"
+            id="add-investment-btn"
+          >
+            <i class="fas fa-plus ml-1"></i>
+            إضافة استثمار
+          </button>
+        </div>
+      </div>
+      
+      <h3 class="font-bold mb-2">سجل المعاملات</h3>
+      <div class="card" id="investor-transactions">
+  `;
+  
+  if (investorTransactions.length > 0) {
+    for (const transaction of investorTransactions) {
+      html += `
+        <div class="border-b border-gray-200 p-3">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="text-sm">${transaction.date}</p>
+              <p class="text-xs text-gray-500">${transaction.notes || ''}</p>
+            </div>
+            <div class="text-right">
+              <p class="font-bold ${transaction.type === 'payout' ? 'text-red-600' : 'text-green-600'}">
+                ${transaction.type === 'payout' ? '-' : '+'}${numberWithCommas(transaction.amount)} د.ع
+              </p>
+              <p class="text-xs">${transaction.type === 'investment' ? 'استثمار' : 'ربح'}</p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  } else {
+    html += `<p class="text-center py-4">لا توجد معاملات مسجلة</p>`;
+  }
+  
+  html += `
+      </div>
+    </div>
+  `;
+  
+  mainContent.innerHTML = html;
+  
+  // إضافة المستمعين للأحداث
+  document.getElementById('back-to-investors').addEventListener('click', () => {
+    selectedInvestor = null;
+    navigateTo('investors');
+  });
+  
+  // إضافة مستمع حدث لزر التعديل بشكل صريح
+  const editButton = document.getElementById('edit-investor');
+  editButton.addEventListener('click', () => {
+    // تأكد من طباعة رسالة تصحيح للتحقق
+    console.log('تم النقر على زر التعديل');
+    editInvestor(selectedInvestor);
+  });
+  
+  document.getElementById('delete-investor').addEventListener('click', () => {
+    deleteInvestor(selectedInvestor.id);
+  });
+  
+  document.getElementById('add-payout-btn').addEventListener('click', () => {
+    showAddTransactionModal('payout', selectedInvestor);
+  });
+  
+  document.getElementById('add-investment-btn').addEventListener('click', () => {
+    showAddTransactionModal('investment', selectedInvestor);
+  });
+};
+    
+    // محتوى صفحة المعاملات
+    const renderTransactionsPage = () => {
+      const mainContent = document.getElementById('main-content');
+      
+      // تصنيف المعاملات حسب التاريخ (الأحدث أولاً)
+      const sortedTransactions = [...transactions].sort((a, b) => 
+        new Date(b.date) - new Date(a.date)
+      );
+      
+      let html = `
+        <div class="container">
+          <h1 class="text-xl font-bold mb-4">المعاملات</h1>
+          
+          <div class="card-blue-light p-3 rounded-lg mb-4">
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div>
+                <p class="text-sm text-gray-500">إجمالي الاستثمارات</p>
+                <p class="font-bold">${numberWithCommas(dailySummary.totalInvestments)} د.ع</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">إجمالي المدفوعات</p>
+                <p class="font-bold">${numberWithCommas(dailySummary.totalPayouts)} د.ع</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">المصروفات الإدارية</p>
+                <p class="font-bold">${numberWithCommas(dailySummary.adminExpenses)} د.ع</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex justify-between gap-2 mb-4">
+            <button 
+              class="flex-1 btn btn-green"
+              id="add-payout-all-btn"
+            >
+              <i class="fas fa-dollar-sign ml-1"></i>
+              تسجيل دفع
+            </button>
+            <button 
+              class="flex-1 btn btn-blue"
+              id="add-investment-all-btn"
+            >
+              <i class="fas fa-plus ml-1"></i>
+              تسجيل استثمار
+            </button>
+          </div>
+          
+          <div class="card">
+      `;
+      
+      if (sortedTransactions.length > 0) {
+        for (const transaction of sortedTransactions) {
+          const investor = investors.find(inv => inv.id === transaction.investorId);
+          
+          html += `
+            <div class="border-b border-gray-200 p-3">
+              <div class="flex justify-between items-center">
+                <div>
+                  <p class="font-bold">${investor ? investor.name : 'مصروف إداري'}</p>
+                  <p class="text-sm">${transaction.date}</p>
+                  <p class="text-xs text-gray-500">${transaction.notes || ''}</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-bold ${
+                    transaction.type === 'payout' || transaction.type === 'admin' 
+                      ? 'text-red-600' 
+                      : 'text-green-600'
+                  }">
+                    ${transaction.type === 'payout' || transaction.type === 'admin' ? '-' : '+'}
+                    ${numberWithCommas(transaction.amount)} د.ع
+                  </p>
+                  <p class="text-xs">
+                    ${transaction.type === 'investment' 
+                      ? 'استثمار' 
+                      : transaction.type === 'payout' 
+                        ? 'ربح' 
+                        : 'مصروف إداري'
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      } else {
+        html += `<p class="text-center py-4">لا توجد معاملات مسجلة</p>`;
+      }
+      
+      html += `
+          </div>
+        </div>
+      `;
+      
+      mainContent.innerHTML = html;
+      
+      // إضافة المستمعين للأحداث
+      document.getElementById('add-payout-all-btn').addEventListener('click', () => {
+        showAddTransactionModal('payout');
+      });
+      
+      document.getElementById('add-investment-all-btn').addEventListener('click', () => {
+        showAddTransactionModal('investment');
+      });
+    };
+    
+    // محتوى صفحة التقارير
+    const renderReportsPage = () => {
+      const mainContent = document.getElementById('main-content');
+      
+      // حساب إجمالي الاستثمارات
+      const totalInvestments = transactions
+        .filter(trans => trans.type === 'investment')
+        .reduce((sum, trans) => sum + trans.amount, 0);
+      
+      // حساب إجمالي المدفوعات للأرباح
+      const totalPayouts = transactions
+        .filter(trans => trans.type === 'payout')
+        .reduce((sum, trans) => sum + trans.amount, 0);
+      
+      // حساب إجمالي المصروفات الإدارية
+      const totalAdminExpenses = transactions
+        .filter(trans => trans.type === 'admin')
+        .reduce((sum, trans) => sum + trans.amount, 0);
+      
+      // حساب عدد المستثمرين النشطين
+      const activeInvestors = investors.length;
+      
+      // حساب إجمالي الأرباح الشهرية المتوقعة
+      const totalMonthlyProfit = investors.reduce(
+        (sum, inv) => sum + calculateMonthlyProfit(inv.amount), 
+        0
+      );
+      
+      let html = `
+        <div class="container">
+          <h1 class="text-xl font-bold mb-4">التقارير</h1>
+          
+          <div class="card p-4 mb-4">
+            <h2 class="font-bold mb-2">ملخص الاستثمارات</h2>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-gray-500">إجمالي الاستثمارات</p>
+                <p class="font-bold text-lg">${numberWithCommas(totalInvestments)} د.ع</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">إجمالي الأرباح المدفوعة</p>
+                <p class="font-bold text-lg">${numberWithCommas(totalPayouts)} د.ع</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">المصروفات الإدارية</p>
+                <p class="font-bold text-lg">${numberWithCommas(totalAdminExpenses)} د.ع</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">عدد المستثمرين</p>
+                <p class="font-bold text-lg">${activeInvestors}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card p-4 mb-4">
+            <h2 class="font-bold mb-2">الأرباح الشهرية المتوقعة</h2>
+            <p class="font-bold text-xl text-green-600 mb-2">
+              ${numberWithCommas(totalMonthlyProfit)} د.ع
+            </p>
+            <p class="text-sm text-gray-500">
+              إجمالي مبلغ الأرباح المتوقع دفعه شهريًا لجميع المستثمرين
+            </p>
+          </div>
+          
+          <div class="card p-4">
+            <h2 class="font-bold mb-2">أعلى المستثمرين</h2>
+      `;
+      
+      if (investors.length > 0) {
+        const topInvestors = [...investors]
+          .sort((a, b) => b.amount - a.amount)
+          .slice(0, 5);
+          
+        for (const investor of topInvestors) {
+          html += `
+            <div class="border-b border-gray-200 py-2 flex justify-between">
+              <p>${investor.name}</p>
+              <p class="font-bold">${numberWithCommas(investor.amount)} د.ع</p>
+            </div>
+          `;
+        }
+      } else {
+        html += `<p class="text-center py-2">لا يوجد مستثمرين</p>`;
+      }
+      
+      html += `
+          </div>
+        </div>
+      `;
+      
+      mainContent.innerHTML = html;
+    };
+    
+    // محتوى صفحة الإعدادات
+    const renderSettingsPage = () => {
+      const mainContent = document.getElementById('main-content');
+      
+      let html = `
+        <div class="container">
+          <h1 class="text-xl font-bold mb-4">الإعدادات</h1>
+          
+          <div class="card p-4 mb-4">
+            <h2 class="font-bold mb-2">إعدادات الأرباح</h2>
+            
+            <div class="mb-3">
+              <label class="block text-sm font-medium mb-1">
+                نسبة الربح الشهرية لكل مليون (%)
+              </label>
+              <input 
+                type="number" 
+                id="profit-rate-input"
+                value="${profitRate}"
+                step="0.1"
+                min="0"
+                class="w-full p-2 border border-gray-300 rounded-lg"
+              />
+              <p class="text-sm text-gray-500 mt-1">
+                القيمة الحالية: ${profitRate}% لكل مليون دينار عراقي
+              </p>
+            </div>
+            
+            <div class="card-blue-light p-3 rounded-lg mb-4">
+              <h3 class="font-bold mb-1">مثال على الحساب:</h3>
+              <p class="text-sm mb-1">لاستثمار بقيمة 10,000,000 دينار عراقي:</p>
+              <p class="font-bold">
+                الربح الشهري = <span id="profit-example">${numberWithCommas((10000000 / 1000000) * profitRate * 1000)}</span> دينار عراقي
+              </p>
+            </div>
+            
+            <button 
+              class="w-full btn btn-blue"
+              id="save-settings-btn"
+            >
+              حفظ الإعدادات
+            </button>
+          </div>
+          
+          <div class="card p-4 mb-4">
+            <h2 class="font-bold mb-2">إضافة مصروف إداري</h2>
+            
+            <div class="mb-3">
+              <label class="block text-sm font-medium mb-1">المبلغ</label>
+              <input 
+                type="number" 
+                placeholder="أدخل المبلغ"
+                id="admin-expense-amount"
+                class="w-full p-2 border border-gray-300 rounded-lg"
+              />
+            </div>
+            
+            <div class="mb-3">
+              <label class="block text-sm font-medium mb-1">ملاحظات</label>
+              <input 
+                type="text" 
+                placeholder="أدخل وصف المصروف"
+                id="admin-expense-note"
+                class="w-full p-2 border border-gray-300 rounded-lg"
+              />
+            </div>
+            
+            <button 
+              class="w-full btn btn-red"
+              id="add-admin-expense-btn"
+            >
+              إضافة مصروف
+            </button>
+          </div>
+          
+          <div class="card p-4">
+            <h2 class="font-bold mb-2">النسخ الاحتياطي</h2>
+            
+            <button 
+              class="w-full btn btn-green mb-2"
+              id="export-data-btn"
+            >
+              تصدير البيانات
+            </button>
+            
+            <label class="block w-full btn btn-blue text-center cursor-pointer">
+              استيراد البيانات
+              <input 
+                type="file" 
+                accept=".json" 
+                class="hidden"
+                id="import-data-input"
+              />
+            </label>
+          </div>
+        </div>
+      `;
+      
+      mainContent.innerHTML = html;
+      
+      // إضافة المستمعين للأحداث
+      document.getElementById('profit-rate-input').addEventListener('input', (e) => {
+        const rate = parseFloat(e.target.value);
+        document.getElementById('profit-example').textContent = numberWithCommas((10000000 / 1000000) * rate * 1000);
+      });
+      
+      document.getElementById('save-settings-btn').addEventListener('click', () => {
+        const rate = parseFloat(document.getElementById('profit-rate-input').value);
+        if (!isNaN(rate) && rate >= 0) {
+          profitRate = rate;
+          alert('تم حفظ الإعدادات بنجاح');
+          renderSettingsPage(); // تحديث الصفحة
+        } else {
+          alert('الرجاء إدخال قيمة صحيحة');
+        }
+      });
+      
+      document.getElementById('add-admin-expense-btn').addEventListener('click', () => {
+        const amount = document.getElementById('admin-expense-amount').value;
+        const note = document.getElementById('admin-expense-note').value;
+        
+        if (amount && !isNaN(parseFloat(amount))) {
+          addAdminExpense(parseFloat(amount), note);
+          document.getElementById('admin-expense-amount').value = '';
+          document.getElementById('admin-expense-note').value = '';
+          alert('تم إضافة المصروف بنجاح');
+        } else {
+          alert('الرجاء إدخال مبلغ صحيح');
+        }
+      });
+      
+      document.getElementById('export-data-btn').addEventListener('click', () => {
+        exportData();
+      });
+      
+      document.getElementById('import-data-input').addEventListener('change', (e) => {
+        importData(e.target.files[0]);
+      });
+    };
+    
+    // تحويل الأرقام إلى تنسيق مقروء مع فواصل
+    function numberWithCommas(x) {
+      return Math.round(x).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    
+    // حساب الربح الشهري للمستثمر
+    function calculateMonthlyProfit(amount) {
+      return (amount / 1000000) * profitRate * 1000;
+    }
+    
+    // حساب الإشعارات (المدفوعات القادمة)
+    function calculateUpcomingPayments() {
+      const today = new Date();
+      const upcomingPayments = [];
+      
+      investors.forEach(investor => {
+        const startDate = new Date(investor.startDate);
+        const nextPaymentDate = new Date(startDate);
+        
+        // تحديد تاريخ الدفعة القادمة
+        while (nextPaymentDate <= today) {
+          nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1);
+        }
+        
+        // إذا كانت الدفعة القادمة خلال الأسبوع القادم
+        const daysUntilPayment = Math.floor((nextPaymentDate - today) / (1000 * 60 * 60 * 24));
+        if (daysUntilPayment <= 7) {
+          // حساب المبلغ المستحق
+          const monthlyProfit = calculateMonthlyProfit(investor.amount);
+          
+          upcomingPayments.push({
+            id: investor.id,
+            name: investor.name,
+            date: nextPaymentDate.toISOString().substr(0, 10),
+            amount: monthlyProfit,
+            daysLeft: daysUntilPayment
+          });
+        }
+      });
+      
+      notifications = upcomingPayments;
+    }
+    
+    // وظيفة لإضافة مستثمر جديد
+    function addInvestor() {
+      const name = document.getElementById('new-investor-name').value;
+      const phone = document.getElementById('new-investor-phone').value;
+      const address = document.getElementById('new-investor-address').value;
+      const amount = parseFloat(document.getElementById('new-investor-amount').value);
+      const startDate = document.getElementById('new-investor-start-date').value;
+      const idCard = document.getElementById('new-investor-id-card').value;
+      const notes = document.getElementById('new-investor-notes').value;
+      
+      // التحقق من صحة البيانات
+      if (!name || isNaN(amount) || !startDate) {
+        alert('الرجاء إدخال الاسم والمبلغ وتاريخ البدء على الأقل');
+        return;
+      }
+      
+      const investorId = Date.now().toString();
+      const investor = {
+        id: investorId,
+        name,
+        phone,
+        address,
+        amount,
+        startDate,
+        idCard,
+        notes
+      };
+      
+      investors.push(investor);
+      
+      // إضافة معاملة للاستثمار الأولي
+      const initialInvestment = {
+        id: Date.now().toString(),
+        investorId,
+        type: 'investment',
+        amount,
+        date: startDate,
+        notes: 'استثمار أولي'
+      };
+      
+      transactions.push(initialInvestment);
+      
+      // تحديث ملخص اليوم
+      dailySummary.totalInvestments += amount;
+      
+      // إعادة حساب الإشعارات
+      calculateUpcomingPayments();
+      
+      // إغلاق النموذج والانتقال إلى صفحة المستثمرين
+      hideAddInvestorModal();
+      navigateTo('investors');
+    }
+    
+    // وظيفة لتحديث بيانات مستثمر
+   // تعديل وظيفة updateInvestor
+function updateInvestor() {
+  const investorId = document.getElementById('edit-investor-id').value;
+  if (!investorId) {
+    alert('خطأ في تحديد المستثمر');
+    return;
+  }
+  
+  const name = document.getElementById('new-investor-name').value;
+  const phone = document.getElementById('new-investor-phone').value;
+  const address = document.getElementById('new-investor-address').value;
+  const amount = parseFloat(document.getElementById('new-investor-amount').value);
+  const startDate = document.getElementById('new-investor-start-date').value;
+  const idCard = document.getElementById('new-investor-id-card').value;
+  const notes = document.getElementById('new-investor-notes').value;
+  
+  // التحقق من صحة البيانات
+  if (!name || isNaN(amount) || !startDate) {
+    alert('الرجاء إدخال الاسم والمبلغ وتاريخ البدء على الأقل');
+    return;
+  }
+  
+  // البحث عن المستثمر في القائمة
+  const investorIndex = investors.findIndex(inv => inv.id === investorId);
+  if (investorIndex === -1) {
+    alert('المستثمر غير موجود');
+    return;
+  }
+  
+  // الحصول على البيانات القديمة للمستثمر
+  const oldInvestor = investors[investorIndex];
+  const oldAmount = oldInvestor.amount;
+  
+  // تحديث بيانات المستثمر
+  investors[investorIndex] = {
+    ...oldInvestor,
+    name,
+    phone,
+    address,
+    amount,
+    startDate,
+    idCard,
+    notes
+  };
+  
+  // تحديث ملخص البيانات إذا تغير مبلغ الاستثمار
+  if (amount !== oldAmount) {
+    // البحث عن معاملة الاستثمار الأولي لتحديثها
+    const initialInvestmentIndex = transactions.findIndex(
+      trans => trans.investorId === investorId && trans.type === 'investment' && trans.notes === 'استثمار أولي'
+    );
+    
+    if (initialInvestmentIndex !== -1) {
+      const oldTransAmount = transactions[initialInvestmentIndex].amount;
+      transactions[initialInvestmentIndex].amount = amount;
+      transactions[initialInvestmentIndex].date = startDate;
+      
+      // تحديث ملخص اليوم
+      dailySummary.totalInvestments = dailySummary.totalInvestments - oldTransAmount + amount;
+    }
+  }
+  
+  // تحديث المستثمر المحدد إذا كان هو نفسه المستثمر الذي تم تعديله
+  if (selectedInvestor && selectedInvestor.id === investorId) {
+    selectedInvestor = investors[investorIndex];
+  }
+  
+  // إعادة حساب الإشعارات
+  calculateUpcomingPayments();
+  
+  // حفظ البيانات في التخزين المحلي
+  saveData();
+  
+  // إغلاق النموذج
+  hideAddInvestorModal();
+  
+  // تحديث الواجهة
+  if (currentPage === 'investorDetails') {
+    renderInvestorDetailsPage();
+  } else {
+    navigateTo('investors');
+  }
+  
+  alert('تم تحديث بيانات المستثمر بنجاح');
+}
+    
+    // وظيفة لإضافة معاملة جديدة
+    // تعديل وظيفة addTransaction لتحديث مبلغ المستثمر عند إضافة استثمار جديد
+function addTransaction() {
+  const investorId = document.getElementById('transaction-investor-id').value;
+  const type = document.getElementById('transaction-type').value;
+  const amount = parseFloat(document.getElementById('transaction-amount').value);
+  const date = document.getElementById('transaction-date').value || getCurrentDate();
+  const notes = document.getElementById('transaction-notes').value;
+  
+  // التحقق من صحة البيانات
+  if (!investorId || isNaN(amount) || amount <= 0) {
+    alert('الرجاء تحديد المستثمر والمبلغ');
+    return;
+  }
+  
+  const transaction = {
+    id: Date.now().toString(),
+    investorId,
+    type,
+    amount,
+    date,
+    notes
+  };
+  
+  transactions.push(transaction);
+  
+  // تحديث ملخص اليوم
+  if (type === 'investment') {
+    dailySummary.totalInvestments += amount;
+    
+    // تحديث مبلغ المستثمر في حالة إضافة استثمار جديد
+    const investor = investors.find(inv => inv.id === investorId);
+    if (investor) {
+      investor.amount += amount;
+      
+      // تحديث المستثمر المحدد إذا كان هو نفسه
+      if (selectedInvestor && selectedInvestor.id === investorId) {
+        selectedInvestor = investor;
+      }
+    }
+  } else {
+    dailySummary.totalPayouts += amount;
+  }
+  
+  // إعادة حساب الإشعارات
+  calculateUpcomingPayments();
+  
+  // حفظ البيانات في التخزين المحلي
+  saveData();
+  
+  // إغلاق النموذج
+  hideAddTransactionModal();
+  
+  // تحديث الواجهة
+  if (selectedInvestor && selectedInvestor.id === investorId) {
+    renderInvestorDetailsPage();
+  } else if (currentPage === 'transactions') {
+    renderTransactionsPage();
+  } else if (currentPage === 'home') {
+    renderHomePage();
+  }
+}
+    // وظيفة لإضافة مصروف إداري
+    function addAdminExpense(amount, note) {
+      const expense = {
+        id: Date.now().toString(),
+        type: 'admin',
+        amount,
+        date: getCurrentDate(),
+        notes: note || 'مصروف إداري'
+      };
+      
+      transactions.push(expense);
+      dailySummary.adminExpenses += amount;
+      
+      // تحديث الواجهة إذا كان المستخدم في صفحة المعاملات
+      if (currentPage === 'transactions') {
+        renderTransactionsPage();
+      } else if (currentPage === 'reports') {
+        renderReportsPage();
+      }
+    }
+    
+    // وظيفة لحذف مستثمر
+    function deleteInvestor(investorId) {
+      if (confirm('هل أنت متأكد من حذف هذا المستثمر وجميع معاملاته؟')) {
+        // حذف المستثمر
+        investors = investors.filter(inv => inv.id !== investorId);
+        
+        // حذف معاملات المستثمر
+        const investorTransactions = transactions.filter(trans => trans.investorId === investorId);
+        transactions = transactions.filter(trans => trans.investorId !== investorId);
+        
+        // تحديث ملخص اليوم
+        for (const trans of investorTransactions) {
+          if (trans.type === 'investment') {
+            dailySummary.totalInvestments -= trans.amount;
+          } else if (trans.type === 'payout') {
+            dailySummary.totalPayouts -= trans.amount;
+          }
+        }
+        
+        // إعادة حساب الإشعارات
+        calculateUpcomingPayments();
+        
+        // العودة إلى قائمة المستثمرين
+        selectedInvestor = null;
+        navigateTo('investors');
+      }
+    }
+    
+    // وظيفة لعرض تفاصيل المستثمر
+    function viewInvestorDetails(investor) {
+      selectedInvestor = investor;
+      currentPage = 'investorDetails';
+      updateNavigation();
+      renderInvestorDetailsPage();
+    }
+    
+    // وظيفة لإظهار نموذج إضافة مستثمر جديد
+    // تعديل وظيفة showAddInvestorModal
+function showAddInvestorModal() {
+  // تعيين عنوان النموذج
+  document.getElementById('investor-modal-title').textContent = 'إضافة مستثمر جديد';
+  
+  // تغيير نص زر التأكيد
+  document.getElementById('confirm-add-investor').textContent = 'إضافة';
+  
+  // إعادة تعيين حقول النموذج
+  document.getElementById('new-investor-name').value = '';
+  document.getElementById('new-investor-phone').value = '';
+  document.getElementById('new-investor-address').value = '';
+  document.getElementById('new-investor-amount').value = '';
+  document.getElementById('new-investor-start-date').value = getCurrentDate();
+  document.getElementById('new-investor-id-card').value = '';
+  document.getElementById('new-investor-notes').value = '';
+  
+  // مسح معرف المستثمر (للتعديل)
+  document.getElementById('edit-investor-id').value = '';
+  
+  // إظهار النموذج
+  document.getElementById('add-investor-modal').classList.remove('hidden');
+  
+  // إزالة مستمعي الأحداث القديمين لتجنب التكرار
+  const cancelBtn = document.getElementById('cancel-add-investor');
+  const confirmBtn = document.getElementById('confirm-add-investor');
+  
+  const newCancelBtn = cancelBtn.cloneNode(true);
+  const newConfirmBtn = confirmBtn.cloneNode(true);
+  
+  cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+  
+  // إضافة المستمعين الجديدين
+  newCancelBtn.addEventListener('click', hideAddInvestorModal);
+  newConfirmBtn.addEventListener('click', addInvestor);
+}
+    
+    // وظيفة لإخفاء نموذج إضافة مستثمر جديد
+    function hideAddInvestorModal() {
+      document.getElementById('add-investor-modal').classList.add('hidden');
+      
+      // إعادة تعيين حقول النموذج
+      document.getElementById('new-investor-name').value = '';
+      document.getElementById('new-investor-phone').value = '';
+      document.getElementById('new-investor-address').value = '';
+      document.getElementById('new-investor-amount').value = '';
+      document.getElementById('new-investor-start-date').value = '';
+      document.getElementById('new-investor-id-card').value = '';
+      document.getElementById('new-investor-notes').value = '';
+      document.getElementById('edit-investor-id').value = '';
+    }
+    
+    // تحديث وظيفة editInvestor
+function editInvestor(investor) {
+  if (!investor) return;
+  
+  // تعيين عنوان النموذج
+  document.getElementById('investor-modal-title').textContent = 'تعديل معلومات المستثمر';
+  
+  // تغيير نص زر التأكيد
+  document.getElementById('confirm-add-investor').textContent = 'حفظ التعديلات';
+  
+  // تعبئة حقول النموذج ببيانات المستثمر
+  document.getElementById('new-investor-name').value = investor.name;
+  document.getElementById('new-investor-phone').value = investor.phone || '';
+  document.getElementById('new-investor-address').value = investor.address || '';
+  document.getElementById('new-investor-amount').value = investor.amount;
+  document.getElementById('new-investor-start-date').value = investor.startDate;
+  document.getElementById('new-investor-id-card').value = investor.idCard || '';
+  document.getElementById('new-investor-notes').value = investor.notes || '';
+  
+  // تخزين معرف المستثمر للتعديل
+  document.getElementById('edit-investor-id').value = investor.id;
+  
+  // إظهار النموذج
+  document.getElementById('add-investor-modal').classList.remove('hidden');
+  
+  // إزالة مستمعي الأحداث القديمين لتجنب التكرار
+  const cancelBtn = document.getElementById('cancel-add-investor');
+  const confirmBtn = document.getElementById('confirm-add-investor');
+  
+  const newCancelBtn = cancelBtn.cloneNode(true);
+  const newConfirmBtn = confirmBtn.cloneNode(true);
+  
+  cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+  
+  // إضافة المستمعين الجديدين
+  newCancelBtn.addEventListener('click', hideAddInvestorModal);
+  newConfirmBtn.addEventListener('click', updateInvestor);
+}
+    // وظيفة لإظهار نموذج إضافة معاملة جديدة
+    function showAddTransactionModal(type, investor = null) {
+      // تعيين عنوان النموذج
+      document.getElementById('transaction-modal-title').textContent = 
+        type === 'investment' ? 'إضافة استثمار جديد' : 'تسجيل دفع ربح';
+      
+      // تعيين نوع المعاملة
+      document.getElementById('transaction-type').value = type;
+      
+      // تعبئة قائمة المستثمرين
+      const investorSelect = document.getElementById('transaction-investor-id');
+      
+      // مسح القائمة الحالية
+      while (investorSelect.firstChild) {
+        investorSelect.removeChild(investorSelect.firstChild);
+      }
+      
+      // إضافة خيار افتراضي
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = 'اختر المستثمر';
+      investorSelect.appendChild(defaultOption);
+      
+      // إضافة المستثمرين
+      for (const inv of investors) {
+        const option = document.createElement('option');
+        option.value = inv.id;
+        option.textContent = inv.name;
+        investorSelect.appendChild(option);
+      }
+      
+      // إذا كان هناك مستثمر محدد
+      if (investor) {
+        investorSelect.value = investor.id;
+        investorSelect.disabled = true;
+        
+        // إذا كان تسجيل ربح، تعيين المبلغ تلقائيًا
+        if (type === 'payout') {
+          document.getElementById('transaction-amount').value = calculateMonthlyProfit(investor.amount);
+        }
+      } else {
+        investorSelect.disabled = false;
+      }
+      
+      // تعيين التاريخ الافتراضي لليوم
+      document.getElementById('transaction-date').value = getCurrentDate();
+      
+      // إظهار النموذج
+      document.getElementById('add-transaction-modal').classList.remove('hidden');
+      
+      // تفعيل المستمعين
+      document.getElementById('cancel-add-transaction').addEventListener('click', hideAddTransactionModal);
+      document.getElementById('confirm-add-transaction').addEventListener('click', addTransaction);
+    }
+    
+    // وظيفة لإخفاء نموذج إضافة معاملة جديدة
+    function hideAddTransactionModal() {
+      document.getElementById('add-transaction-modal').classList.add('hidden');
+      
+      // إعادة تعيين حقول النموذج
+      document.getElementById('transaction-investor-id').value = '';
+      document.getElementById('transaction-amount').value = '';
+      document.getElementById('transaction-notes').value = '';
+    }
+    
+    // وظيفة للتنقل بين الصفحات
+    function navigateTo(page) {
+      currentPage = page;
+      updateNavigation();
+      
+      switch (page) {
+        case 'home':
+          renderHomePage();
+          break;
+        case 'investors':
+          renderInvestorsPage();
+          break;
+        case 'investorDetails':
+          renderInvestorDetailsPage();
+          break;
+        case 'transactions':
+          renderTransactionsPage();
+          break;
+        case 'reports':
+          renderReportsPage();
+          break;
+        case 'settings':
+          renderSettingsPage();
+          break;
+        default:
+          renderHomePage();
+      }
+    }
+    
+    // تحديث عناصر التنقل
+    function updateNavigation() {
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        item.classList.remove('active');
+      });
+      
+      let activeNavId;
+      
+      switch (currentPage) {
+        case 'home':
+          activeNavId = 'nav-home';
+          break;
+        case 'investors':
+        case 'investorDetails':
+          activeNavId = 'nav-investors';
+          break;
+        case 'transactions':
+          activeNavId = 'nav-transactions';
+          break;
+        case 'reports':
+          activeNavId = 'nav-reports';
+          break;
+        case 'settings':
+          activeNavId = 'nav-settings';
+          break;
+      }
+      
+      if (activeNavId) {
+        document.getElementById(activeNavId).classList.add('active');
+      }
+    }
+    
+    // وظيفة لتصدير البيانات
+    function exportData() {
+      const data = {
+        investors,
+        transactions,
+        profitRate,
+        exportDate: new Date().toISOString()
+      };
+      
+      const dataStr = JSON.stringify(data);
+      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+      
+      const exportFileDefaultName = `investment_backup_${getCurrentDate()}.json`;
+      
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+    }
+    
+    // وظيفة لاستيراد البيانات
+    function importData(file) {
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target.result);
+          if (data.investors && data.transactions && data.profitRate) {
+            investors = data.investors;
+            transactions = data.transactions;
+            profitRate = data.profitRate;
+            
+            // إعادة حساب ملخص البيانات
+            recalculateSummary();
+            
+            // إعادة حساب الإشعارات
+            calculateUpcomingPayments();
+            
+            alert('تم استيراد البيانات بنجاح');
+            navigateTo(currentPage); // تحديث الواجهة
+          } else {
+            alert('الملف غير صالح');
+          }
+        } catch (error) {
+          alert('خطأ في قراءة الملف');
+        }
+      };
+      reader.readAsText(file);
+    }
+    
+    // إعادة حساب ملخص البيانات
+    function recalculateSummary() {
+      dailySummary = {
+        totalInvestments: 0,
+        totalPayouts: 0,
+        adminExpenses: 0
+      };
+      
+      for (const trans of transactions) {
+        if (trans.type === 'investment') {
+          dailySummary.totalInvestments += trans.amount;
+        } else if (trans.type === 'payout') {
+          dailySummary.totalPayouts += trans.amount;
+        } else if (trans.type === 'admin') {
+          dailySummary.adminExpenses += trans.amount;
+        }
+      }
+    }
+    
+    // تهيئة التطبيق
+    function initApp() {
+      // تحميل البيانات من التخزين المحلي
+      const savedData = localStorage.getItem('investmentAppData');
+      if (savedData) {
+        try {
+          const data = JSON.parse(savedData);
+          investors = data.investors || [];
+          transactions = data.transactions || [];
+          profitRate = data.profitRate || 17.5;
+          recalculateSummary();
+        } catch (e) {
+          console.error('خطأ في قراءة البيانات المحفوظة', e);
+        }
+      }
+      
+      // حساب الإشعارات
+      calculateUpcomingPayments();
+      
+      // تهيئة المستمعين للقائمة
+      document.getElementById('nav-home').addEventListener('click', () => navigateTo('home'));
+      document.getElementById('nav-investors').addEventListener('click', () => {
+        selectedInvestor = null;
+        navigateTo('investors');
+      });
+      document.getElementById('nav-transactions').addEventListener('click', () => navigateTo('transactions'));
+      document.getElementById('nav-reports').addEventListener('click', () => navigateTo('reports'));
+      document.getElementById('nav-settings').addEventListener('click', () => navigateTo('settings'));
+      
+      // عرض الصفحة الرئيسية
+      navigateTo('home');
+      
+      // حفظ البيانات عند مغادرة الصفحة
+      window.addEventListener('beforeunload', saveData);
+    }
+    
+    // حفظ البيانات في التخزين المحلي
+    function saveData() {
+      const data = {
+        investors,
+        transactions,
+        profitRate
+      };
+      
+      localStorage.setItem('investmentAppData', JSON.stringify(data));
+    }
+    
+    // بدء التطبيق عند تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', initApp);
+    
+    
+    // إضافة المستمعين للأحداث في renderInvestorDetailsPage()
+document.getElementById('edit-investor').addEventListener('click', () => {
+  editInvestor(selectedInvestor);
+});
+  </script>
+</body>
+</html>
