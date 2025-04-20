@@ -60,17 +60,99 @@
       <img src="assets/icon.png" alt="Logo" />
       <span>نظام الاستثمار المتكامل</span>
       <div id="clock" class="digital-clock">00:00:00</div>
-<div id="currency-widget" class="currency-widget">
-  <strong>USD / IQD:</strong> <span id="usd-iqd">جارٍ التحميل...</span>
-</div>
-
+      <div id="currency-widget" class="currency-widget">
+        <strong>USD / IQD:</strong> <span id="usd-iqd">جارٍ التحميل...</span>
+      </div>
+      <!-- إضافة زر التحديث -->
+      <button id="refresh-btn" class="btn-refresh" title="تحديث التطبيق">
+        <i class="fas fa-sync-alt"></i>
+      </button>
     </div>
     <div class="window-controls">
       <button class="btn-control" id="minimize-btn">—</button>
       <button class="btn-control" id="maximize-btn">☐</button>
       <button class="btn-control close" id="close-btn">✕</button>
     </div>
-  </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const refreshButton = document.getElementById('refresh-btn');
+      
+      if (refreshButton) {
+        refreshButton.addEventListener('click', function() {
+          // إضافة حالة الدوران إلى الزر أثناء التحديث
+          this.classList.add('rotating');
+          
+          // عرض إشعار بأن التحديث جارٍ
+          if (window.showNotification) {
+            window.showNotification('جاري تحديث التطبيق...', 'info');
+          }
+          
+          // إعادة تحميل جميع البيانات وتحديث الواجهة
+          try {
+            // استدعاء دوال التحميل الرئيسية
+            if (window.loadData) {
+              window.loadData();
+            }
+            
+            // تحديث لوحة التحكم
+            if (window.updateDashboard) {
+              window.updateDashboard();
+            }
+            
+            // تحديث عرض البيانات في الجداول
+            if (window.renderInvestorsTable) {
+              window.renderInvestorsTable();
+            }
+            
+            if (window.renderTransactionsTable) {
+              window.renderTransactionsTable();
+            }
+            
+            if (window.renderProfitsTable) {
+              window.renderProfitsTable();
+            }
+            
+            if (window.renderRecentTransactions) {
+              window.renderRecentTransactions();
+            }
+            
+            // تحديث قوائم المستثمرين
+            if (window.populateInvestorSelects) {
+              window.populateInvestorSelects();
+            }
+            
+            // تحديث الرسوم البيانية
+            if (window.updateCharts) {
+              window.updateCharts();
+            }
+            
+            // عرض إشعار بنجاح التحديث بعد فترة قصيرة
+            setTimeout(function() {
+              if (window.showNotification) {
+                window.showNotification('تم تحديث التطبيق بنجاح', 'success');
+              }
+              
+              // إزالة حالة الدوران
+              refreshButton.classList.remove('rotating');
+            }, 1000);
+            
+          } catch (error) {
+            console.error('خطأ في تحديث التطبيق:', error);
+            
+            // عرض إشعار بفشل التحديث
+            if (window.showNotification) {
+              window.showNotification('حدث خطأ أثناء تحديث التطبيق', 'error');
+            }
+            
+            // إزالة حالة الدوران
+            refreshButton.classList.remove('rotating');
+          }
+        });
+      }
+    });
+  </script>
   
 <body>
     <!-- Sidebar -->
@@ -1144,10 +1226,11 @@
    <script src="auth-system.js"></script>
    
    <script src="whatsapp-notification.js"></script>
-   
 
 
-<!--  <script src="auth-integration.js"></script>
+
+
+<!--  <script src="showNotification.js"></script>
 <script src="auth-system.js"></script>
 <script src="au2th-system.js"></script>
 <script src="aut2h-integration.js"></script>-->
