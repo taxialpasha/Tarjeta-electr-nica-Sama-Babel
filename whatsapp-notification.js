@@ -135,29 +135,51 @@ const WhatsAppNotification = (function() {
     }
     
     /**
-     * تنسيق رقم الهاتف للاستخدام مع واتساب
+     * تنسيق رقم الهاتف العراقي للاستخدام مع واتساب
+     * يدعم الأرقام بالصيغ التالية:
+     * - 07xxxxxxxx (صيغة محلية تبدأ بصفر)
+     * - 77xxxxxxxx (بدون صفر)
+     * - +964xxxxxxxx (مع رمز الدولة الدولي)
+     * 
      * @param {string} phoneNumber رقم الهاتف
-     * @returns {string} رقم الهاتف المنسق
+     * @returns {string} رقم الهاتف المنسق بصيغة 964xxxxxxxx
      */
     function formatPhoneNumber(phoneNumber) {
         if (!phoneNumber) return '';
         
-        // إزالة أي مسافات أو رموز
+        // إزالة أي مسافات أو رموز خاصة
         let formattedNumber = phoneNumber.replace(/\s+/g, '').replace(/[-()+]/g, '');
         
-        // إزالة الصفر في البداية إذا وجد
-        if (formattedNumber.startsWith('0')) {
+        // التعامل مع الأرقام العراقية
+        if (formattedNumber.startsWith('07')) {
+            // إذا كان الرقم يبدأ بـ 07 (صيغة عراقية محلية)، نحذف الصفر ونضيف رمز الدولة
+            formattedNumber = '964' + formattedNumber.substring(1);
+        } else if (/^(77|78|75|79|73)/.test(formattedNumber)) {
+            // إذا كان الرقم يبدأ بأحد مقدمات شبكات الهاتف العراقية بدون صفر
+            formattedNumber = '964' + formattedNumber;
+        } else if (formattedNumber.startsWith('964')) {
+            // إذا كان الرقم يحتوي بالفعل على رمز الدولة، نتركه كما هو
+            formattedNumber = formattedNumber;
+        } else if (formattedNumber.startsWith('+964')) {
+            // إذا كان يبدأ بـ +964، نزيل علامة +
             formattedNumber = formattedNumber.substring(1);
-        }
-        
-        // التحقق من وجود رمز الدولة وإضافته إذا لم يكن موجوداً
-        // نفترض أن الرقم عراقي إذا لم يبدأ برمز دولة
-        if (!formattedNumber.startsWith('964') && !formattedNumber.startsWith('+964')) {
+        } else if (formattedNumber.length >= 10) {
+            // إذا كان الرقم بصيغة غير معروفة ولكن طوله مناسب
+            // نفترض أنه رقم عراقي ونضيف رمز الدولة إذا لم يكن موجودًا
+            
+            // إزالة الصفر من البداية إذا وجد
+            if (formattedNumber.startsWith('0')) {
+                formattedNumber = formattedNumber.substring(1);
+            }
+            
+            // إضافة رمز الدولة
             formattedNumber = '964' + formattedNumber;
         }
         
-        // إزالة علامة + إذا وجدت (لأن رابط واتساب يستخدم فقط الأرقام)
+        // التأكد من أن الرقم لا يحتوي على علامة +
         formattedNumber = formattedNumber.replace('+', '');
+        
+        console.log(`تم تنسيق رقم الهاتف من: ${phoneNumber} إلى: ${formattedNumber}`);
         
         return formattedNumber;
     }
