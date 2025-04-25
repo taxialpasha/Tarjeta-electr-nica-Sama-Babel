@@ -133,30 +133,39 @@ const AuthSystem = (function() {
         
         return firebase.auth().createUserWithEmailAndPassword(email, password)
             .then(userCredential => {
-                // إنشاء الحساب بنجاح
                 const user = userCredential.user;
                 console.log(`تم إنشاء حساب جديد: ${user.email}`);
-                
-                // إضافة الاسم للمستخدم
-                const updatePromises = [];
-                
-                if (name) {
-                    updatePromises.push(
-                        user.updateProfile({
-                            displayName: name
-                        })
-                    );
-                }
-                
-                // إنشاء ملف شخصي للمستخدم في قاعدة البيانات
-                updatePromises.push(
-                    createUserProfile(user.uid, {
-                        email: user.email,
-                        displayName: name || email.split('@')[0],
-                        createdAt: new Date().toISOString()
-                    })
-                );
-                
+
+                const defaultPermissions = {
+                    canAddInvestors: true,
+                    canEditInvestors: true,
+                    canDeleteInvestors: false,
+                    canProcessDeposits: true,
+                    canProcessWithdrawals: true,
+                    canPayProfits: false,
+                    canManageSettings: false,
+                    canExportData: true,
+                    canImportData: false,
+                    canCreateBackup: true,
+                    canRestoreBackup: false,
+                    canCreateUsers: false,
+                    canDeleteUsers: false,
+                    canViewReports: true
+                };
+
+                const profileData = {
+                    email: user.email,
+                    displayName: name || email.split('@')[0],
+                    type: "user", // Default user type
+                    createdAt: new Date().toISOString()
+                };
+
+                const updatePromises = [
+                    user.updateProfile({ displayName: profileData.displayName }),
+                    firebase.database().ref(`users/${user.uid}/profile`).set(profileData),
+                    firebase.database().ref(`users/${user.uid}/permissions`).set(defaultPermissions)
+                ];
+
                 return Promise.all(updatePromises)
                     .then(() => {
                         // إخفاء مؤشر التحميل

@@ -9,7 +9,13 @@ const USER_TYPES = {
     MANAGER: 'manager',
     USER: 'user'
 };
-
+const UserManagement = {
+    // وظائف إدارة المستخدمين هنا
+    initUserManagement: function() { /* ... */ },
+    showModal: function(title, content) { /* ... */ },
+    closeModal: function() { /* ... */ },
+    // ...باقي الوظائف
+};
 // وصف الصلاحيات
 const PERMISSIONS = {
     canCreateUsers: "إنشاء مستخدمين جدد",
