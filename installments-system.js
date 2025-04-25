@@ -1298,30 +1298,24 @@ const InstallmentSystem = (function() {
                     <table class="installments-table">
                         <thead>
                             <tr>
-                                <th>وصف القسط</th>
+                                <th>الوصف</th>
+                                <th>المبلغ الإجمالي</th>
                                 <th>تاريخ الاستحقاق</th>
-                                <th>المبلغ</th>
                                 <th>تاريخ الدفع</th>
-                                <th>طريقة السداد</th>
+                                <th>طريقة الدفع</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${paidInstallments.map(inst => `
                                 <tr>
                                     <td>${inst.description}</td>
-                                    <td>${formatDate(inst.dueDate)}</td>
                                     <td>${formatCurrency(inst.amount)}</td>
+                                    <td>${formatDate(inst.dueDate)}</td>
                                     <td>${formatDate(inst.paidDate || inst.updatedAt)}</td>
-                                    <td>${inst.paymentMethod === 'auto' ? 'تلقائي (من الأرباح)' : 'يدوي'}</td>
+                                    <td>${getPaymentMethodText(inst.paymentMethod)}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="2"><strong>إجمالي المدفوعات</strong></td>
-                                <td colspan="3"><strong>${formatCurrency(paidInstallments.reduce((sum, inst) => sum + inst.amount, 0))}</strong></td>
-                            </tr>
-                        </tfoot>
                     </table>
                 </div>
             `;
@@ -1332,161 +1326,147 @@ const InstallmentSystem = (function() {
     }
     
     /**
+     * الحصول على نص طريقة الدفع
+     * @param {string} method - رمز طريقة الدفع
+     * @returns {string} - النص المقابل لطريقة الدفع
+     */
+    function getPaymentMethodText(method) {
+        switch (method) {
+            case 'profit_deduction':
+                return 'استقطاع من الأرباح';
+            case 'manual':
+                return 'دفع يدوي';
+            default:
+                return 'غير محدد';
+        }
+    }
+    
+    /**
      * تصدير سجل الأقساط المدفوعة
      */
     function exportInstallmentHistory() {
-        // التحقق من وجود بيانات
         const historyContent = document.getElementById('installment-history-content');
         if (!historyContent) return;
         
-        try {
-            // البحث عن اسم المستثمر
-            const investorName = historyContent.querySelector('.investor-fullname')?.textContent || 'مستثمر';
-            
-            // تحويل جدول الأقساط إلى CSV
-            const table = historyContent.querySelector('table');
-            if (!table) {
-                showNotification('لا توجد بيانات للتصدير', 'error');
-                return;
-            }
-            
-            // تجميع البيانات
-            const rows = [];
-            
-            // إضافة العناوين
-            const headers = [];
-            table.querySelectorAll('thead th').forEach(th => {
-                headers.push(th.textContent.trim());
-            });
-            rows.push(headers.join(','));
-            
-            // إضافة البيانات
-            table.querySelectorAll('tbody tr').forEach(tr => {
-                const rowData = [];
-                tr.querySelectorAll('td').forEach(td => {
-                    // تنظيف النص من الفواصل
-                    const text = td.textContent.trim().replace(/,/g, ' ');
-                    rowData.push(text);
-                });
-                rows.push(rowData.join(','));
-            });
-            
-            // إضافة المجموع
-            const footerRow = [];
-            table.querySelectorAll('tfoot td').forEach(td => {
-                footerRow.push(td.textContent.trim().replace(/,/g, ' '));
-            });
-            rows.push(footerRow.join(','));
-            
-            // إنشاء CSV
-            const csvContent = rows.join('\n');
-            
-            // إنشاء رابط التنزيل
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', `سجل_أقساط_${investorName}_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.display = 'none';
-            
-            // إضافة الرابط وتنفيذ النقر
-            document.body.appendChild(link);
-            link.click();
-            
-            // تنظيف
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            
-            showNotification('تم تصدير سجل الأقساط بنجاح', 'success');
-        } catch (error) {
-            console.error('خطأ في تصدير سجل الأقساط:', error);
-            showNotification('حدث خطأ أثناء تصدير البيانات', 'error');
+        // الحصول على اسم المستثمر من العنوان
+        const investorName = historyContent.querySelector('.investor-fullname')?.textContent || 'مستثمر';
+        
+        // الحصول على بيانات الجدول
+        const table = historyContent.querySelector('table');
+        if (!table) {
+            showNotification('لا توجد بيانات للتصدير', 'error');
+            return;
         }
+        
+        // إنشاء سلسلة CSV
+        let csvContent = "الوصف,المبلغ الإجمالي,تاريخ الاستحقاق,تاريخ الدفع,طريقة الدفع\n";
+        
+        // إضافة الصفوف
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const rowData = Array.from(cells).map(cell => `"${cell.textContent.replace(/"/g, '""')}"`);
+            csvContent += rowData.join(',') + '\n';
+        });
+        
+        // إنشاء ملف للتنزيل
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `سجل_أقساط_${investorName}_${formatDateForFileName(new Date())}.csv`);
+        link.style.display = 'none';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showNotification('تم تصدير السجل بنجاح', 'success');
+    }
+    
+    /**
+     * تنسيق التاريخ لاستخدامه في اسم الملف
+     * @param {Date} date - الكائن Date
+     * @returns {string} - التاريخ المنسق
+     */
+    function formatDateForFileName(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
     
     /**
      * عرض نافذة تأكيد استقطاع الأقساط
      * @param {Object} investor - بيانات المستثمر
-     * @param {number} totalProfit - إجمالي الأرباح المستحقة
-     * @param {Function} callback - دالة الاستدعاء عند اختيار المستخدم
+     * @param {number} totalProfit - إجمالي الربح المستحق
+     * @param {Function} callback - دالة رد النداء عند الضغط على أحد أزرار التأكيد
      */
     function showInstallmentConfirmationModal(investor, totalProfit, callback) {
         // الحصول على الأقساط المستحقة
         const dueInstallments = getDueInstallments(investor);
         
-        // إذا لم تكن هناك أقساط مستحقة، استدعاء دالة الاستدعاء ونخرج
+        // إذا لم توجد أقساط مستحقة، نستمر بدون عرض النافذة
         if (dueInstallments.length === 0) {
-            callback(false);
+            if (typeof callback === 'function') {
+                callback(false);
+            }
             return;
         }
         
-        // حساب إجمالي الأقساط المستحقة
+        // إجمالي الأقساط المستحقة
         const totalDueAmount = dueInstallments.reduce((sum, installment) => sum + installment.remainingAmount, 0);
         
-        // حساب الربح النهائي بعد استقطاع الأقساط
+        // الربح النهائي بعد الاستقطاع
         const finalProfit = Math.max(0, totalProfit - totalDueAmount);
         
-        // إعداد محتوى التأكيد
-        const contentElement = document.getElementById('installment-deduction-details');
-        if (!contentElement) {
-            callback(false);
-            return;
+        // ملء تفاصيل الاستقطاع
+        const detailsContainer = document.getElementById('installment-deduction-details');
+        if (detailsContainer) {
+            detailsContainer.innerHTML = `
+                <div class="confirmation-details">
+                    <div class="investor-name">
+                        <strong>المستثمر:</strong> ${investor.name}
+                    </div>
+                    
+                    <div class="installments-list">
+                        <h4>الأقساط المستحقة:</h4>
+                        <ul>
+                            ${dueInstallments.map(installment => `
+                                <li>
+                                    <span class="installment-desc">${installment.description}</span>
+                                    <span class="installment-amount">${formatCurrency(installment.remainingAmount)}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div class="profit-details">
+                        <div class="detail-row">
+                            <span class="detail-label">إجمالي الربح المستحق:</span>
+                            <span class="detail-value">${formatCurrency(totalProfit)}</span>
+                        </div>
+                        <div class="detail-row deduction">
+                            <span class="detail-label">إجمالي الأقساط المستحقة:</span>
+                            <span class="detail-value">- ${formatCurrency(totalDueAmount)}</span>
+                        </div>
+                        <div class="detail-row final ${finalProfit === 0 ? 'zero' : ''}">
+                            <span class="detail-label">صافي الربح بعد الاستقطاع:</span>
+                            <span class="detail-value">${formatCurrency(finalProfit)}</span>
+                        </div>
+                    </div>
+                    
+                    ${finalProfit === 0 ? `
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>تنبيه: سيتم استقطاع جميع الأرباح لتسديد الأقساط المستحقة.</span>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
         }
         
-        contentElement.innerHTML = `
-            <div class="installment-confirmation-details">
-                <div class="investor-info-banner">
-                    <div class="investor-avatar">${investor.name.charAt(0)}</div>
-                    <div class="investor-details">
-                        <div class="investor-name">${investor.name}</div>
-                        <div class="installments-badge">${dueInstallments.length} قسط مستحق</div>
-                    </div>
-                </div>
-                
-                <div class="profit-summary">
-                    <div class="summary-row">
-                        <div class="summary-label">إجمالي الربح المستحق:</div>
-                        <div class="summary-value">${formatCurrency(totalProfit)}</div>
-                    </div>
-                    <div class="summary-row deduction">
-                        <div class="summary-label">خصم الأقساط المستحقة:</div>
-                        <div class="summary-value">- ${formatCurrency(totalDueAmount)}</div>
-                    </div>
-                    <div class="separator"></div>
-                    <div class="summary-row total">
-                        <div class="summary-label">صافي الربح بعد الاستقطاع:</div>
-                        <div class="summary-value">${formatCurrency(finalProfit)}</div>
-                    </div>
-                </div>
-                
-                <table class="installments-table">
-                    <thead>
-                        <tr>
-                            <th>وصف القسط</th>
-                            <th>تاريخ الاستحقاق</th>
-                            <th>المبلغ المستحق</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${dueInstallments.map(installment => `
-                            <tr>
-                                <td>${installment.description}</td>
-                                <td>${formatDate(installment.dueDate)}</td>
-                                <td>${formatCurrency(installment.remainingAmount)}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="2"><strong>إجمالي الأقساط المستحقة</strong></td>
-                            <td><strong>${formatCurrency(totalDueAmount)}</strong></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        `;
-        
-        // حفظ دالة الاستدعاء في النافذة
+        // تخزين دالة رد النداء في النافذة
         const modalElement = document.getElementById('installment-confirmation-modal');
         if (modalElement) {
             modalElement._confirmCallback = callback;
@@ -1501,84 +1481,105 @@ const InstallmentSystem = (function() {
      * @param {Object} investor - بيانات المستثمر
      * @param {Array} dueInstallments - الأقساط المستحقة
      * @param {number} totalDueAmount - إجمالي الأقساط المستحقة
-     * @param {number} totalProfit - إجمالي الأرباح
+     * @param {number} totalProfit - إجمالي الربح المستحق
      * @param {number} finalProfit - صافي الربح بعد الاستقطاع
      */
     function processInstallmentDeduction(investor, dueInstallments, totalDueAmount, totalProfit, finalProfit) {
-        try {
-            // التأكد من أن المبلغ المستقطع أقل من أو يساوي إجمالي الأرباح
-            const deductionAmount = Math.min(totalDueAmount, totalProfit);
+        // إذا لم توجد أقساط مستحقة أو إجمالي الربح صفر، نخرج
+        if (dueInstallments.length === 0 || totalProfit <= 0) {
+            if (typeof window._originalPayProfit === 'function') {
+                window._originalPayProfit();
+            }
+            return;
+        }
+        
+        // المبلغ المتاح للاستقطاع
+        const availableAmount = Math.min(totalProfit, totalDueAmount);
+        
+        // معالجة الأقساط المستحقة
+        let remainingAmount = availableAmount;
+        const paidInstallments = [];
+        const partiallyPaidInstallments = [];
+        
+        // سداد الأقساط ذات الأولوية العالية أولاً
+        const sortedInstallments = [...dueInstallments].sort((a, b) => {
+            // ترتيب حسب الأولوية ثم حسب تاريخ الاستحقاق
+            if (a.priority === 'high' && b.priority !== 'high') return -1;
+            if (a.priority !== 'high' && b.priority === 'high') return 1;
+            return new Date(a.dueDate) - new Date(b.dueDate);
+        });
+        
+        // سداد الأقساط من الأرباح
+        sortedInstallments.forEach(dueInstallment => {
+            if (remainingAmount <= 0) return;
             
-            // تسجيل عملية دفع الأرباح بعد الاستقطاع
-            // تسجيل عملية دفع الأرباح المتبقية
-            investor.profits.push({
-                date: new Date().toISOString().split('T')[0],
-                amount: finalProfit
-            });
+            // الحصول على القسط من بيانات المستثمر
+            const installmentIndex = investor.installments.findIndex(inst => inst.id === dueInstallment.id);
+            if (installmentIndex === -1) return;
             
-            // إضافة عملية جديدة بنوع "دفع أرباح"
-            addTransaction('دفع أرباح', investor.id, finalProfit, 'دفع أرباح مستحقة بعد استقطاع الأقساط');
+            const installment = investor.installments[installmentIndex];
             
-            // معالجة الأقساط المستحقة
-            if (deductionAmount > 0) {
-                // ترتيب الأقساط حسب الأولوية (عالية أولاً) ثم حسب تاريخ الاستحقاق
-                const sortedInstallments = [...dueInstallments].sort((a, b) => {
-                    // الترتيب حسب الأولوية أولاً
-                    if (a.priority === 'high' && b.priority !== 'high') return -1;
-                    if (a.priority !== 'high' && b.priority === 'high') return 1;
-                    
-                    // ثم حسب تاريخ الاستحقاق (الأقدم أولاً)
-                    return new Date(a.dueDate) - new Date(b.dueDate);
-                });
-                
-                let remainingDeduction = deductionAmount;
-                
-                // تسديد الأقساط بالترتيب حتى استنفاد المبلغ المستقطع
-                for (let i = 0; i < sortedInstallments.length && remainingDeduction > 0; i++) {
-                    const installment = sortedInstallments[i];
-                    
-                    // العثور على القسط في مصفوفة المستثمر
-                    const originalIndex = investor.installments.findIndex(inst => inst.id === installment.id);
-                    if (originalIndex === -1) continue;
-                    
-                    // تحديد المبلغ المستقطع من هذا القسط
-                    const amountToDeduct = Math.min(remainingDeduction, installment.remainingAmount);
-                    
-                    // تحديث المبلغ المدفوع والمتبقي
-                    const currentPaidAmount = investor.installments[originalIndex].paidAmount || 0;
-                    investor.installments[originalIndex].paidAmount = currentPaidAmount + amountToDeduct;
-                    investor.installments[originalIndex].remainingAmount = Math.max(0, installment.remainingAmount - amountToDeduct);
-                    
-                    // تحديث حالة القسط إذا تم سداده بالكامل
-                    if (investor.installments[originalIndex].remainingAmount <= 0) {
-                        investor.installments[originalIndex].status = 'paid';
-                        investor.installments[originalIndex].paidDate = new Date().toISOString().split('T')[0];
-                        investor.installments[originalIndex].paymentMethod = 'auto';
-                    }
-                    
-                    // تحديث المبلغ المتبقي للاستقطاع
-                    remainingDeduction -= amountToDeduct;
-                    
-                    // تسجيل عملية دفع القسط
-                    addTransaction('دفع قسط', investor.id, amountToDeduct, `سداد قسط: ${installment.description} (من الأرباح)`);
-                }
-                
-                // إضافة عملية استقطاع الأقساط من الأرباح
-                addTransaction('استقطاع أقساط', investor.id, deductionAmount, `استقطاع أقساط مستحقة من الأرباح`);
+            // المبلغ المطلوب للقسط
+            const requiredAmount = installment.remainingAmount;
+            
+            // المبلغ الذي سيتم دفعه
+            const paymentAmount = Math.min(remainingAmount, requiredAmount);
+            
+            // تحديث المبلغ المدفوع والمتبقي
+            installment.paidAmount = (installment.paidAmount || 0) + paymentAmount;
+            installment.remainingAmount = Math.max(0, installment.remainingAmount - paymentAmount);
+            
+            // تحديث حالة القسط
+            if (installment.remainingAmount <= 0) {
+                installment.status = 'paid';
+                installment.paidDate = new Date().toISOString().split('T')[0];
+                installment.paymentMethod = 'profit_deduction';
+                paidInstallments.push(installment);
+            } else {
+                installment.status = 'active';
+                partiallyPaidInstallments.push(installment);
             }
             
-            // حفظ البيانات
-            saveData();
-            
-            // عرض إشعار النجاح
-            showNotification(`تم دفع الأرباح مع استقطاع الأقساط المستحقة بنجاح!`, 'success');
-            
-            // إغلاق النافذة المنبثقة
-            closeModal('pay-profit-modal');
-        } catch (error) {
-            console.error('خطأ في معالجة استقطاع الأقساط:', error);
-            showNotification('حدث خطأ أثناء معالجة استقطاع الأقساط', 'error');
+            // تحديث المبلغ المتبقي للاستقطاع
+            remainingAmount -= paymentAmount;
+        });
+        
+        // إنشاء وصف لعمليات سداد الأقساط
+        let deductionNotes = '';
+        
+        if (paidInstallments.length > 0) {
+            deductionNotes += `تم سداد ${paidInstallments.length} قسط: `;
+            deductionNotes += paidInstallments.map(inst => inst.description).join('، ');
         }
+        
+        if (partiallyPaidInstallments.length > 0) {
+            if (deductionNotes) deductionNotes += '. ';
+            deductionNotes += `تم سداد جزئي لـ ${partiallyPaidInstallments.length} قسط: `;
+            deductionNotes += partiallyPaidInstallments.map(inst => inst.description).join('، ');
+        }
+        
+        // إضافة عملية دفع الأرباح مع استقطاع الأقساط
+        investor.profits.push({
+            date: new Date().toISOString().split('T')[0],
+            amount: finalProfit,
+            deductedAmount: availableAmount,
+            notes: deductionNotes
+        });
+        
+        // إضافة عملية جديدة
+        const transactionNotes = `دفع أرباح مستحقة ${deductionNotes ? `مع استقطاع أقساط (${deductionNotes})` : ''}`;
+        addTransaction('دفع أرباح', investor.id, finalProfit, transactionNotes);
+        
+        // حفظ البيانات
+        if (typeof window.saveData === 'function') {
+            window.saveData();
+        }
+        
+        // إغلاق النافذة المنبثقة
+        closeModal('pay-profit-modal');
+        
+        // عرض إشعار النجاح
+        showNotification(`تم دفع الأرباح بمبلغ ${formatCurrency(finalProfit)} للمستثمر ${investor.name} بنجاح!${availableAmount > 0 ? ` (تم استقطاع ${formatCurrency(availableAmount)} لسداد الأقساط المستحقة)` : ''}`, 'success');
     }
     
     /**
@@ -1587,82 +1588,152 @@ const InstallmentSystem = (function() {
      * @returns {Array} - مصفوفة الأقساط المستحقة
      */
     function getDueInstallments(investor) {
-        if (!investor || !investor.installments) {
-            return [];
-        }
+        if (!investor || !investor.installments) return [];
         
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
         return investor.installments.filter(installment => {
-            // التحقق من أن القسط غير مدفوع
-            if (installment.status === 'paid') {
-                return false;
-            }
+            // تجاهل الأقساط المدفوعة
+            if (installment.status === 'paid') return false;
             
-            // التحقق من تاريخ الاستحقاق
+            // تحويل تاريخ الاستحقاق إلى كائن Date
             const dueDate = new Date(installment.dueDate);
             dueDate.setHours(0, 0, 0, 0);
             
-            // القسط مستحق إذا كان تاريخ استحقاقه يسبق أو يساوي اليوم
-            return dueDate <= today && installment.remainingAmount > 0;
+            // القسط مستحق إذا كان تاريخ استحقاقه اليوم أو قبل اليوم
+            return dueDate <= today;
         });
+    }
+    
+    /**
+     * تحديث لوحة تحكم الأقساط
+     */
+    function updateInstallmentsDashboard() {
+        // إجمالي الأقساط المستحقة
+        let totalDueAmount = 0;
+        let totalDueCount = 0;
+        
+        // إجمالي الأقساط القادمة
+        let totalUpcomingAmount = 0;
+        let totalUpcomingCount = 0;
+        
+        // إجمالي الأقساط المدفوعة
+        let totalPaidAmount = 0;
+        let totalPaidCount = 0;
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // حساب الإحصائيات
+        window.investors.forEach(investor => {
+            if (!investor.installments) return;
+            
+            investor.installments.forEach(installment => {
+                const dueDate = new Date(installment.dueDate);
+                dueDate.setHours(0, 0, 0, 0);
+                
+                if (installment.status === 'paid') {
+                    // أقساط مدفوعة
+                    totalPaidAmount += installment.amount;
+                    totalPaidCount++;
+                } else if (dueDate <= today) {
+                    // أقساط مستحقة
+                    totalDueAmount += installment.remainingAmount;
+                    totalDueCount++;
+                } else {
+                    // أقساط قادمة
+                    totalUpcomingAmount += installment.remainingAmount;
+                    totalUpcomingCount++;
+                }
+            });
+        });
+        
+        // حساب نسبة التحصيل
+        const totalInstallments = totalPaidAmount + totalDueAmount + totalUpcomingAmount;
+        const collectionRate = totalInstallments > 0 ? (totalPaidAmount / totalInstallments) * 100 : 0;
+        
+        // تحديث الإحصائيات في لوحة التحكم
+        document.getElementById('total-due-installments').textContent = formatCurrency(totalDueAmount);
+        document.getElementById('total-due-count').textContent = `${totalDueCount} قسط`;
+        
+        document.getElementById('total-upcoming-installments').textContent = formatCurrency(totalUpcomingAmount);
+        document.getElementById('total-upcoming-count').textContent = `${totalUpcomingCount} قسط`;
+        
+        document.getElementById('total-paid-installments').textContent = formatCurrency(totalPaidAmount);
+        document.getElementById('total-paid-count').textContent = `${totalPaidCount} قسط`;
+        
+        document.getElementById('collection-rate').textContent = `${collectionRate.toFixed(1)}%`;
+        
+        // تحديث اتجاه نسبة التحصيل (يمكن تحسينه لاحقاً بمقارنة مع الشهر السابق)
+        const collectionTrend = document.getElementById('collection-trend');
+        if (collectionRate >= 70) {
+            collectionTrend.className = 'fas fa-arrow-up';
+            collectionTrend.style.color = '#10b981';
+        } else if (collectionRate >= 40) {
+            collectionTrend.className = 'fas fa-arrow-right';
+            collectionTrend.style.color = '#f59e0b';
+        } else {
+            collectionTrend.className = 'fas fa-arrow-down';
+            collectionTrend.style.color = '#ef4444';
+        }
     }
     
     /**
      * عرض صفحة الأقساط وتحديثها
      */
     function showInstallmentsPage() {
-        // تنشيط صفحة الأقساط
-        const pages = document.querySelectorAll('.page');
-        pages.forEach(page => {
+        // إخفاء جميع الصفحات
+        document.querySelectorAll('.page').forEach(page => {
             page.classList.remove('active');
         });
         
+        // إظهار صفحة الأقساط
         const installmentsPage = document.getElementById('installments-page');
         if (installmentsPage) {
             installmentsPage.classList.add('active');
             
-            // تحديث الروابط النشطة في القائمة
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
+            // تحديث لوحة التحكم
+            updateInstallmentsDashboard();
+            
+            // عرض جدول الأقساط
+            renderInstallmentsTable();
+            
+            // تحديث القائمة الجانبية
+            document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
             
-            const installmentsLink = document.querySelector('.nav-link[data-page="installments"]');
-            if (installmentsLink) {
-                installmentsLink.classList.add('active');
+            const installmentsNavLink = document.querySelector('.nav-link[data-page="installments"]');
+            if (installmentsNavLink) {
+                installmentsNavLink.classList.add('active');
             }
-            
-            // تحديث بيانات الصفحة
-            renderInstallmentsTable();
-            updateInstallmentsDashboard();
         }
     }
     
     /**
-     * تصيير جدول الأقساط
-     * @param {string} filter - فلتر لاستخدامه (all, overdue, today, upcoming)
+     * عرض جدول الأقساط
+     * @param {string} filter - فلتر لعرض أنواع محددة من الأقساط
      */
     function renderInstallmentsTable(filter = 'all') {
         const tableBody = document.querySelector('#installments-table tbody');
         if (!tableBody) return;
         
-        // تجميع جميع الأقساط من جميع المستثمرين
-        const allInstallments = [];
+        // تجميع جميع الأقساط النشطة من جميع المستثمرين
+        let allInstallments = [];
         
-        investors.forEach(investor => {
+        window.investors.forEach(investor => {
             if (!investor.installments) return;
             
-            investor.installments.forEach(installment => {
-                if (installment.status === 'paid') return; // تجاهل الأقساط المدفوعة
-                
-                allInstallments.push({
+            const investorInstallments = investor.installments
+                .filter(installment => installment.status !== 'paid')
+                .map(installment => ({
                     ...installment,
                     investorId: investor.id,
                     investorName: investor.name
-                });
-            });
+                }));
+                
+            allInstallments = allInstallments.concat(investorInstallments);
         });
         
         // تصفية الأقساط حسب الفلتر المحدد
@@ -1685,94 +1756,109 @@ const InstallmentSystem = (function() {
             }
         });
         
-        // ترتيب الأقساط حسب تاريخ الاستحقاق
+        // ترتيب الأقساط حسب تاريخ الاستحقاق (المستحقة أولاً)
         filteredInstallments.sort((a, b) => {
-            // الترتيب حسب الأولوية أولاً
-            if (a.priority === 'high' && b.priority !== 'high') return -1;
-            if (a.priority !== 'high' && b.priority === 'high') return 1;
-            
-            // ثم حسب تاريخ الاستحقاق
-            return new Date(a.dueDate) - new Date(b.dueDate);
+            // ترتيب حسب تاريخ الاستحقاق
+            const dateA = new Date(a.dueDate);
+            const dateB = new Date(b.dueDate);
+            return dateA - dateB;
         });
         
-        // إنشاء صفوف الجدول
+        // تفريغ الجدول
+        tableBody.innerHTML = '';
+        
+        // إذا لم توجد أقساط، نعرض رسالة
         if (filteredInstallments.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="7" class="text-center">لا توجد أقساط مستحقة</td>
+                    <td colspan="7" class="text-center">لا توجد أقساط ${getFilterText(filter)}</td>
                 </tr>
             `;
             return;
         }
         
-        tableBody.innerHTML = filteredInstallments.map(installment => {
+        // إضافة الأقساط إلى الجدول
+        filteredInstallments.forEach(installment => {
+            // تحديد حالة القسط (متأخر، مستحق اليوم، قادم)
             const dueDate = new Date(installment.dueDate);
-            const isOverdue = dueDate < today;
-            const isDueToday = dueDate.getTime() === today.getTime();
+            const daysRemaining = Math.floor((dueDate - today) / (1000 * 60 * 60 * 24));
             
             let statusClass = '';
             let statusText = '';
             
-            if (isOverdue) {
+            if (daysRemaining < 0) {
                 statusClass = 'status-overdue';
-                statusText = 'متأخر';
-            } else if (isDueToday) {
+                statusText = `متأخر (${Math.abs(daysRemaining)} يوم)`;
+            } else if (daysRemaining === 0) {
                 statusClass = 'status-today';
-                statusText = 'اليوم';
+                statusText = 'مستحق اليوم';
             } else {
                 statusClass = 'status-upcoming';
-                statusText = 'قادم';
+                statusText = `بعد ${daysRemaining} يوم`;
             }
             
-            return `
-                <tr class="${statusClass} ${installment.priority === 'high' ? 'priority-high' : ''}">
-                    <td>
-                        <div class="investor-info">
-                            <div class="investor-avatar">${installment.investorName.charAt(0)}</div>
-                            <div>
-                                <div class="investor-name">${installment.investorName}</div>
-                                <div class="investor-id">${installment.investorId}</div>
-                            </div>
+            const row = document.createElement('tr');
+            row.className = statusClass;
+            
+            row.innerHTML = `
+                <td>
+                    <div class="investor-info">
+                        <div class="investor-avatar">${installment.investorName.charAt(0)}</div>
+                        <div>
+                            <div class="investor-name">${installment.investorName}</div>
+                            <div class="investor-id">${installment.investorId}</div>
                         </div>
-                    </td>
-                    <td>${installment.description}
-                        ${installment.priority === 'high' ? '<span class="priority-badge">أولوية عالية</span>' : ''}
-                    </td>
-                    <td>${formatDate(installment.dueDate)}</td>
-                    <td>${formatCurrency(installment.amount)}</td>
-                    <td>${formatCurrency(installment.remainingAmount)}</td>
-                    <td>
-                        <span class="status-badge ${statusClass}">${statusText}</span>
-                    </td>
-                    <td>
-                        <div class="table-actions">
-                            <button class="btn btn-sm btn-success pay-installment-btn" data-investor-id="${installment.investorId}" data-installment-id="${installment.id}" title="دفع القسط">
-                                <i class="fas fa-coins"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline edit-installment-btn" data-investor-id="${installment.investorId}" data-installment-id="${installment.id}" title="تعديل القسط">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline investor-details-btn" data-investor-id="${installment.investorId}" title="تفاصيل المستثمر">
-                                <i class="fas fa-user"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
+                    </div>
+                </td>
+                <td>${installment.description}</td>
+                <td>${formatDate(installment.dueDate)}</td>
+                <td>${formatCurrency(installment.amount)}</td>
+                <td>${formatCurrency(installment.remainingAmount)}</td>
+                <td><span class="badge ${statusClass}">${statusText}</span></td>
+                <td>
+                    <div class="actions">
+                        <button class="btn btn-sm btn-success pay-installment-btn" data-investor-id="${installment.investorId}" data-installment-id="${installment.id}">
+                            <i class="fas fa-coins"></i>
+                            <span>تسديد</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline edit-installment-btn" data-investor-id="${installment.investorId}" data-installment-id="${installment.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </td>
             `;
-        }).join('');
+            
+            tableBody.appendChild(row);
+        });
         
         // إضافة مستمعي الأحداث للأزرار
-        setupInstallmentTableButtonsListeners(tableBody);
+        setupInstallmentTableButtonsListeners();
+    }
+    
+    /**
+     * الحصول على نص الفلتر
+     * @param {string} filter - الفلتر المحدد
+     * @returns {string} - النص المقابل للفلتر
+     */
+    function getFilterText(filter) {
+        switch (filter) {
+            case 'overdue':
+                return 'متأخرة';
+            case 'today':
+                return 'مستحقة اليوم';
+            case 'upcoming':
+                return 'قادمة';
+            default:
+                return '';
+        }
     }
     
     /**
      * إضافة مستمعي الأحداث لأزرار جدول الأقساط
-     * @param {HTMLElement} tableBody - جسم الجدول
      */
-    function setupInstallmentTableButtonsListeners(tableBody) {
-        // أزرار دفع الأقساط
-        const payButtons = tableBody.querySelectorAll('.pay-installment-btn');
-        payButtons.forEach(button => {
+    function setupInstallmentTableButtonsListeners() {
+        // أزرار تسديد الأقساط
+        document.querySelectorAll('#installments-table .pay-installment-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const investorId = this.getAttribute('data-investor-id');
                 const installmentId = this.getAttribute('data-installment-id');
@@ -1781,149 +1867,162 @@ const InstallmentSystem = (function() {
         });
         
         // أزرار تعديل الأقساط
-        const editButtons = tableBody.querySelectorAll('.edit-installment-btn');
-        editButtons.forEach(button => {
+        document.querySelectorAll('#installments-table .edit-installment-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const investorId = this.getAttribute('data-investor-id');
                 const installmentId = this.getAttribute('data-installment-id');
                 editInstallment(investorId, installmentId);
             });
         });
-        
-        // أزرار تفاصيل المستثمر
-        const detailsButtons = tableBody.querySelectorAll('.investor-details-btn');
-        detailsButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const investorId = this.getAttribute('data-investor-id');
-                if (typeof window.showInvestorDetails === 'function') {
-                    window.showInvestorDetails(investorId);
-                }
-            });
-        });
     }
     
     /**
-     * تصفية جدول الأقساط
-     * @param {string} filter - الفلتر المطلوب (all, overdue, today, upcoming)
+     * تصفية الأقساط حسب الفلتر المحدد
+     * @param {string} filter - الفلتر المحدد
      */
     function filterInstallments(filter) {
         renderInstallmentsTable(filter);
     }
     
     /**
-     * البحث في جدول الأقساط
-     * @param {string} searchText - نص البحث
+     * البحث في الأقساط
+     * @param {string} query - نص البحث
      */
-    function searchInstallments(searchText) {
-        if (!searchText) {
+    function searchInstallments(query) {
+        // التحقق من وجود نص بحث
+        if (!query || query.trim() === '') {
             renderInstallmentsTable();
             return;
         }
         
-        searchText = searchText.toLowerCase();
+        query = query.trim().toLowerCase();
         
+        // تجميع جميع الأقساط النشطة من جميع المستثمرين
+        let allInstallments = [];
+        
+        window.investors.forEach(investor => {
+            if (!investor.installments) return;
+            
+            // البحث في اسم المستثمر
+            const investorMatchesQuery = investor.name.toLowerCase().includes(query);
+            
+            const investorInstallments = investor.installments
+                .filter(installment => {
+                    // تجاهل الأقساط المدفوعة
+                    if (installment.status === 'paid') return false;
+                    
+                    // البحث في وصف القسط أو ملاحظاته
+                    return investorMatchesQuery || 
+                           (installment.description && installment.description.toLowerCase().includes(query)) ||
+                           (installment.notes && installment.notes.toLowerCase().includes(query));
+                })
+                .map(installment => ({
+                    ...installment,
+                    investorId: investor.id,
+                    investorName: investor.name
+                }));
+                
+            allInstallments = allInstallments.concat(investorInstallments);
+        });
+        
+        // عرض النتائج
         const tableBody = document.querySelector('#installments-table tbody');
         if (!tableBody) return;
         
-        // إخفاء الصفوف غير المطابقة
-        const rows = tableBody.querySelectorAll('tr');
-        rows.forEach(row => {
-            const investorName = row.querySelector('.investor-name')?.textContent || '';
-            const description = row.querySelector('td:nth-child(2)')?.textContent || '';
-            
-            if (investorName.toLowerCase().includes(searchText) || description.toLowerCase().includes(searchText)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
+        // تفريغ الجدول
+        tableBody.innerHTML = '';
+        
+        // إذا لم توجد نتائج، نعرض رسالة
+        if (allInstallments.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center">لا توجد نتائج مطابقة لـ "${query}"</td>
+                </tr>
+            `;
+            return;
+        }
+        
+     // ترتيب الأقساط حسب تاريخ الاستحقاق (المستحقة أولاً)
+        allInstallments.sort((a, b) => {
+            const dateA = new Date(a.dueDate);
+            const dateB = new Date(b.dueDate);
+            return dateA - dateB;
         });
-    }
-    
-    /**
-     * تحديث لوحة معلومات الأقساط
-     */
-    function updateInstallmentsDashboard() {
-        // تجميع إحصائيات الأقساط
-        let totalDueAmount = 0;
-        let totalDueCount = 0;
         
-        let totalUpcomingAmount = 0;
-        let totalUpcomingCount = 0;
-        
-        let totalPaidAmount = 0;
-        let totalPaidCount = 0;
-        
+        // عرض النتائج في الجدول
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
-        investors.forEach(investor => {
-            if (!investor.installments) return;
+        // إضافة الأقساط إلى الجدول
+        allInstallments.forEach(installment => {
+            // تحديد حالة القسط (متأخر، مستحق اليوم، قادم)
+            const dueDate = new Date(installment.dueDate);
+            const daysRemaining = Math.floor((dueDate - today) / (1000 * 60 * 60 * 24));
             
-            investor.installments.forEach(installment => {
-                const dueDate = new Date(installment.dueDate);
-                dueDate.setHours(0, 0, 0, 0);
-                
-                if (installment.status === 'paid') {
-                    totalPaidAmount += installment.amount;
-                    totalPaidCount++;
-                } else if (dueDate <= today) {
-                    totalDueAmount += installment.remainingAmount;
-                    totalDueCount++;
-                } else {
-                    totalUpcomingAmount += installment.remainingAmount;
-                    totalUpcomingCount++;
-                }
-            });
+            let statusClass = '';
+            let statusText = '';
+            
+            if (daysRemaining < 0) {
+                statusClass = 'status-overdue';
+                statusText = `متأخر (${Math.abs(daysRemaining)} يوم)`;
+            } else if (daysRemaining === 0) {
+                statusClass = 'status-today';
+                statusText = 'مستحق اليوم';
+            } else {
+                statusClass = 'status-upcoming';
+                statusText = `بعد ${daysRemaining} يوم`;
+            }
+            
+            const row = document.createElement('tr');
+            row.className = statusClass;
+            
+            row.innerHTML = `
+                <td>
+                    <div class="investor-info">
+                        <div class="investor-avatar">${installment.investorName.charAt(0)}</div>
+                        <div>
+                            <div class="investor-name">${installment.investorName}</div>
+                            <div class="investor-id">${installment.investorId}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>${installment.description}</td>
+                <td>${formatDate(installment.dueDate)}</td>
+                <td>${formatCurrency(installment.amount)}</td>
+                <td>${formatCurrency(installment.remainingAmount)}</td>
+                <td><span class="badge ${statusClass}">${statusText}</span></td>
+                <td>
+                    <div class="actions">
+                        <button class="btn btn-sm btn-success pay-installment-btn" data-investor-id="${installment.investorId}" data-installment-id="${installment.id}">
+                            <i class="fas fa-coins"></i>
+                            <span>تسديد</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline edit-installment-btn" data-investor-id="${installment.investorId}" data-installment-id="${installment.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            
+            tableBody.appendChild(row);
         });
         
-        // تحديث عناصر لوحة المعلومات
-        const totalDueElement = document.getElementById('total-due-installments');
-        const totalDueCountElement = document.getElementById('total-due-count');
-        if (totalDueElement) totalDueElement.textContent = formatCurrency(totalDueAmount, false) + ' ' + (window.settings?.currency || 'دينار');
-        if (totalDueCountElement) totalDueCountElement.textContent = formatInstallmentCount(totalDueCount);
-        
-        const totalUpcomingElement = document.getElementById('total-upcoming-installments');
-        const totalUpcomingCountElement = document.getElementById('total-upcoming-count');
-        if (totalUpcomingElement) totalUpcomingElement.textContent = formatCurrency(totalUpcomingAmount, false) + ' ' + (window.settings?.currency || 'دينار');
-        if (totalUpcomingCountElement) totalUpcomingCountElement.textContent = formatInstallmentCount(totalUpcomingCount);
-        
-        const totalPaidElement = document.getElementById('total-paid-installments');
-        const totalPaidCountElement = document.getElementById('total-paid-count');
-        if (totalPaidElement) totalPaidElement.textContent = formatCurrency(totalPaidAmount, false) + ' ' + (window.settings?.currency || 'دينار');
-        if (totalPaidCountElement) totalPaidCountElement.textContent = formatInstallmentCount(totalPaidCount);
-        
-        // حساب نسبة التحصيل
-        const totalAmount = totalDueAmount + totalUpcomingAmount + totalPaidAmount;
-        const collectionRate = totalAmount > 0 ? (totalPaidAmount / totalAmount * 100).toFixed(1) : 0;
-        
-        const collectionRateElement = document.getElementById('collection-rate');
-        if (collectionRateElement) collectionRateElement.textContent = collectionRate + '%';
-        
-        // تحديث اتجاه التحصيل (هذا يتطلب بيانات تاريخية، نستخدم قيمة افتراضية هنا)
-        const collectionTrendElement = document.getElementById('collection-trend');
-        const collectionChangeElement = document.getElementById('collection-change');
-        
-        if (collectionTrendElement && collectionChangeElement) {
-            // للتبسيط، نفترض اتجاهاً تصاعدياً دائماً
-            collectionTrendElement.className = 'fas fa-arrow-up';
-            collectionChangeElement.textContent = '5% من الشهر السابق';
-        }
+        // إضافة مستمعي الأحداث للأزرار
+        setupInstallmentTableButtonsListeners();
     }
     
     /**
      * ملء قائمة المستثمرين
-     * @param {HTMLSelectElement} selectElement - عنصر القائمة
+     * @param {HTMLElement} selectElement - عنصر قائمة الاختيار
      */
     function populateInvestorsList(selectElement) {
         if (!selectElement) return;
         
-        // إعادة تعيين القائمة
+        // تفريغ القائمة
         selectElement.innerHTML = '<option value="">اختر المستثمر</option>';
         
         // ترتيب المستثمرين أبجدياً
-        const sortedInvestors = [...investors].sort((a, b) => {
-            return a.name.localeCompare(b.name);
-        });
+        const sortedInvestors = [...window.investors].sort((a, b) => a.name.localeCompare(b.name));
         
         // إضافة المستثمرين إلى القائمة
         sortedInvestors.forEach(investor => {
@@ -1935,362 +2034,182 @@ const InstallmentSystem = (function() {
     }
     
     /**
-     * تنسيق عدد الأقساط بصيغة عربية صحيحة
-     * @param {number} count - عدد الأقساط
-     * @returns {string} - النص المنسق
-     */
-    function formatInstallmentCount(count) {
-        if (count === 0) {
-            return 'لا توجد أقساط';
-        } else if (count === 1) {
-            return 'قسط واحد';
-        } else if (count === 2) {
-            return 'قسطان';
-        } else if (count >= 3 && count <= 10) {
-            return `${count} أقساط`;
-        } else {
-            return `${count} قسط`;
-        }
-    }
-    
-    /**
-     * تنسيق التاريخ بشكل مناسب
-     * @param {string} dateStr - نص التاريخ بصيغة ISO
-     * @returns {string} - التاريخ المنسق
-     */
-    function formatDate(dateStr) {
-        if (!dateStr) return '-';
-        
-        try {
-            const date = new Date(dateStr);
-            return date.toISOString().split('T')[0];
-        } catch (e) {
-            return dateStr;
-        }
-    }
-    
-    /**
-     * تنسيق المبالغ المالية
-     * @param {number} amount - المبلغ
-     * @param {boolean} addCurrency - إضافة رمز العملة
-     * @returns {string} - المبلغ المنسق
-     */
-    function formatCurrency(amount, addCurrency = true) {
-        if (typeof window.formatCurrency === 'function') {
-            return window.formatCurrency(amount, addCurrency);
-        }
-        
-        // نسخة بسيطة من الدالة إذا لم تكن موجودة في النافذة
-        if (amount === undefined || amount === null || isNaN(amount)) {
-            return addCurrency ? "0 " + (window.settings?.currency || 'دينار') : "0";
-        }
-        
-        amount = parseFloat(amount);
-        if (amount % 1 !== 0) {
-            amount = amount.toFixed(2);
-        }
-        
-        const parts = amount.toString().split('.');
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        
-        const formattedAmount = parts.join('.');
-        
-        if (addCurrency) {
-            return formattedAmount + " " + (window.settings?.currency || 'دينار');
-        } else {
-            return formattedAmount;
-        }
-    }
-    
-    /**
-     * إضافة عملية جديدة إلى سجل العمليات
-     * @param {string} type - نوع العملية
-     * @param {string} investorId - معرف المستثمر
-     * @param {number} amount - المبلغ
-     * @param {string} notes - ملاحظات
-     * @returns {Object} - العملية الجديدة أو null في حالة الفشل
-     */
-    function addTransaction(type, investorId, amount, notes = '') {
-        if (typeof window.addTransaction === 'function') {
-            return window.addTransaction(type, investorId, amount, notes);
-        } else {
-            console.warn('دالة addTransaction غير موجودة في النافذة');
-            
-            // نسخة بسيطة من الدالة إذا لم تكن موجودة في النافذة
-            const investor = window.investors.find(inv => inv.id === investorId);
-            if (!investor) {
-                console.error(`لم يتم العثور على المستثمر: ${investorId}`);
-                return null;
-            }
-            
-            // تحديد رصيد المستثمر بعد العملية
-            let balanceAfter = 0;
-            
-            if (type === 'إيداع') {
-                // تحديث رصيد المستثمر
-                investor.amount = (investor.amount || 0) + amount;
-                balanceAfter = investor.amount;
-            } else if (type === 'سحب' || type === 'دفع قسط' || type === 'استقطاع أقساط') {
-                // تحديث رصيد المستثمر في حالة السحب
-                investor.amount = (investor.amount || 0) - amount;
-                balanceAfter = investor.amount;
-            } else {
-                // في حالة الأرباح، لا نضيف للرصيد الأساسي
-                balanceAfter = investor.amount || 0;
-            }
-            
-            const newTransaction = {
-                id: Date.now().toString(),
-                date: new Date().toISOString().split('T')[0],
-                createdAt: new Date().toISOString(),
-                type,
-                investorId,
-                investorName: investor ? investor.name : 'غير معروف',
-                amount,
-                balanceAfter,
-                notes
-            };
-            
-            // إضافة العملية إلى سجل العمليات
-            window.transactions.push(newTransaction);
-            
-            // حفظ البيانات
-            if (typeof window.saveData === 'function') {
-                window.saveData();
-            }
-            
-            // إطلاق حدث تحديث العمليات
-            const event = new CustomEvent('transaction:update');
-            document.dispatchEvent(event);
-            
-            return newTransaction;
-        }
-    }
-    
-    /**
-     * فتح نافذة منبثقة
-     * @param {string} modalId - معرف النافذة
-     */
-    function openModal(modalId) {
-        if (typeof window.openModal === 'function') {
-            window.openModal(modalId);
-        } else {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.add('active');
-            }
-        }
-    }
-    
-    /**
-     * إغلاق نافذة منبثقة
-     * @param {string} modalId - معرف النافذة
-     */
-    function closeModal(modalId) {
-        if (typeof window.closeModal === 'function') {
-            window.closeModal(modalId);
-        } else {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.remove('active');
-            }
-        }
-    }
-    
-    /**
-     * عرض إشعار للمستخدم
-     * @param {string} message - نص الإشعار
-     * @param {string} type - نوع الإشعار (success, error, warning, info)
-     */
-    function showNotification(message, type = 'success') {
-        if (typeof window.showNotification === 'function') {
-            window.showNotification(message, type);
-        } else {
-            console.log(`إشعار (${type}): ${message}`);
-            alert(message);
-        }
-    }
-    
-    /**
      * إضافة أنماط CSS لنظام الأقساط
      */
     function addInstallmentStyles() {
         // التحقق من وجود أنماط مسبقة
-        if (document.getElementById('installment-system-styles')) {
+        if (document.getElementById('installment-styles')) {
             return;
         }
         
         // إنشاء عنصر نمط جديد
         const styleElement = document.createElement('style');
-        styleElement.id = 'installment-system-styles';
+        styleElement.id = 'installment-styles';
         
         // إضافة أنماط CSS
         styleElement.textContent = `
-            /* أنماط عامة لنظام الأقساط */
+            /* أنماط قسم الأقساط */
             .installments-section {
-                margin-top: 20px;
-                border-top: 1px dashed #e0e0e0;
-                padding-top: 20px;
+                margin-top: 1.5rem;
+                background-color: #f8fafc;
+                border-radius: 8px;
+                padding: 16px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             }
             
             .installments-table {
                 width: 100%;
                 border-collapse: collapse;
-                margin-bottom: 1.5rem;
+                margin-top: 0.75rem;
             }
             
-            .installments-table th, .installments-table td {
-                padding: 0.75rem;
-                text-align: start;
-                border-bottom: 1px solid #e0e0e0;
+            .installments-table th,
+            .installments-table td {
+                padding: 8px 12px;
+                text-align: right;
+                border-bottom: 1px solid #e2e8f0;
             }
             
-            .installments-table th {
-                background-color: #f4f6fa;
+            .installments-table thead th {
+                background-color: #f1f5f9;
                 font-weight: 600;
+                color: #475569;
             }
             
-            .installments-table tbody tr:hover {
-                background-color: #f8f9fb;
+            .alert {
+                padding: 12px 16px;
+                border-radius: 6px;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 8px;
             }
             
-            /* حالات القسط */
-            .status-overdue {
-                background-color: rgba(244, 67, 54, 0.05);
+            .alert-warning {
+                background-color: #fff7ed;
+                border-left: 4px solid #f59e0b;
+                color: #92400e;
             }
             
-            .status-today {
-                background-color: rgba(255, 152, 0, 0.05);
+            .alert-info {
+                background-color: #eff6ff;
+                border-left: 4px solid #3b82f6;
+                color: #1e40af;
             }
             
-            .status-upcoming {
-                background-color: rgba(33, 150, 243, 0.05);
+            /* أنماط ملخص الأرباح */
+            .profit-summary {
+                background-color: #fff;
+                border-radius: 8px;
+                border: 1px solid #e2e8f0;
+                margin-top: 1rem;
+                overflow: hidden;
             }
             
-            .status-paid {
-                background-color: rgba(76, 175, 80, 0.05);
+            .summary-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px 16px;
+                border-bottom: 1px solid #e2e8f0;
             }
             
-            /* شارات الحالة */
-            .status-badge {
-                display: inline-block;
-                padding: 0.25rem 0.5rem;
-                border-radius: 0.25rem;
-                font-size: 0.75rem;
+            .summary-row:last-child {
+                border-bottom: none;
+            }
+            
+            .summary-row.deduction {
+                background-color: #fee2e2;
+                color: #b91c1c;
+            }
+            
+            .summary-row.total {
+                background-color: #ecfdf5;
+                color: #047857;
                 font-weight: 600;
+                font-size: 1.1em;
             }
             
-            .status-badge.status-overdue {
-                background-color: #ffebee;
-                color: #f44336;
+            .summary-row.total.zero {
+                background-color: #ffedd5;
+                color: #c2410c;
             }
             
-            .status-badge.status-today {
-                background-color: #fff8e1;
-                color: #ffa000;
+            /* أنماط قسم الأقساط في تفاصيل المستثمر */
+            .installments-detail-group {
+                margin-top: 1.5rem;
+                padding-top: 1.5rem;
+                border-top: 1px solid #e2e8f0;
             }
             
-            .status-badge.status-upcoming {
-                background-color: #e3f2fd;
-                color: #2196f3;
-            }
-            
-            .status-badge.status-paid {
-                background-color: #e8f5e9;
-                color: #4caf50;
-            }
-            
-            .status-badge.status-urgent {
-                background-color: #ffebee;
-                color: #f44336;
-            }
-            
-            .status-badge.status-none {
-                background-color: #eeeeee;
-                color: #757575;
-            }
-            
-            /* شارة الأولوية */
-            .priority-high {
-                position: relative;
-            }
-            
-            .priority-badge {
-                display: inline-block;
-                background-color: #ff5252;
-                color: white;
-                font-size: 0.65rem;
-                padding: 0.15rem 0.4rem;
-                border-radius: 0.25rem;
-                margin-right: 0.5rem;
-                font-weight: 600;
-                vertical-align: middle;
-            }
-            
-            /* ملخص الأقساط */
             .installments-summary {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                padding: 0.75rem 1rem;
-                margin: 1rem 0;
-                border-radius: 0.5rem;
+                padding: 12px 16px;
+                border-radius: 8px;
+                margin-bottom: 0.75rem;
             }
             
             .installments-summary.due {
-                background-color: #ffebee;
+                background-color: #fee2e2;
             }
             
             .installments-summary.upcoming {
-                background-color: #e3f2fd;
-            }
-            
-            .installments-summary.paid {
-                background-color: #e8f5e9;
+                background-color: #f0f9ff;
             }
             
             .summary-title {
-                font-weight: 600;
                 display: flex;
                 align-items: center;
-            }
-            
-            .summary-title i {
-                margin-left: 0.5rem;
+                gap: 6px;
+                font-weight: 600;
             }
             
             .summary-amount {
                 font-weight: 700;
-                font-size: 1.1rem;
-            }
-            
-            /* أنماط تفاصيل الأقساط في نافذة المستثمر */
-            .installments-detail-group {
-                margin-top: 1.5rem;
-                padding-top: 1.5rem;
-                border-top: 1px solid #e0e0e0;
+                font-size: 1.1em;
             }
             
             .installment-status {
-                font-size: 0.8rem;
-                margin-right: 0.75rem;
-                padding: 0.25rem 0.5rem;
-                border-radius: 0.25rem;
+                display: inline-block;
+                font-size: 0.85em;
+                padding: 4px 8px;
+                border-radius: 99px;
+                margin-right: 8px;
                 vertical-align: middle;
             }
             
+            .status-urgent {
+                background-color: #fee2e2;
+                color: #b91c1c;
+            }
+            
+            .status-upcoming {
+                background-color: #f0f9ff;
+                color: #0369a1;
+            }
+            
+            .status-paid {
+                background-color: #ecfdf5;
+                color: #047857;
+            }
+            
+            .status-none {
+                background-color: #f1f5f9;
+                color: #64748b;
+            }
+            
             .empty-installments {
-                display: flex;
-                justify-content: center;
-                padding: 2rem;
-                background-color: #f5f5f5;
-                border-radius: 0.5rem;
-                color: #757575;
+                padding: 16px;
+                text-align: center;
+                color: #64748b;
+                background-color: #f8fafc;
+                border-radius: 8px;
             }
             
             .view-history-link {
-                text-align: center;
                 margin-top: 1rem;
+                text-align: left;
             }
             
             .view-history-link a {
@@ -2298,66 +2217,152 @@ const InstallmentSystem = (function() {
                 text-decoration: none;
                 display: inline-flex;
                 align-items: center;
+                gap: 4px;
+                font-size: 0.9em;
             }
             
-            .view-history-link a i {
-                margin-left: 0.5rem;
+            .view-history-link a:hover {
+                text-decoration: underline;
             }
             
-            /* أنماط نافذة تأكيد استقطاع الأقساط */
-            .installment-confirmation-details {
-                max-width: 100%;
-                margin: 0 auto;
+            /* أنماط جدول الأقساط */
+            #installments-table tr.status-overdue {
+                background-color: #fee2e2;
             }
             
-            .investor-info-banner {
-                display: flex;
-                align-items: center;
-                background-color: #f0f4ff;
-                padding: 1rem;
-                border-radius: 0.5rem;
-                margin-bottom: 1.5rem;
+            #installments-table tr.status-today {
+                background-color: #ffedd5;
             }
             
-            .installments-badge {
-                background-color: #ffebee;
-                color: #f44336;
-                font-size: 0.8rem;
-                padding: 0.25rem 0.5rem;
-                border-radius: 0.25rem;
-                margin-top: 0.25rem;
-            }
-            
-            .profit-summary {
-                margin-bottom: 1.5rem;
-                background-color: #f8f9fa;
-                padding: 1rem;
-                border-radius: 0.5rem;
-            }
-            
-            .summary-row {
-                display: flex;
-                justify-content: space-between;
-                padding: 0.5rem 0;
-            }
-            
-            .summary-label {
+            .badge {
+                display: inline-block;
+                padding: 4px 8px;
+                border-radius: 99px;
+                font-size: 0.85em;
                 font-weight: 500;
             }
             
-            .summary-row.deduction .summary-value {
-                color: #f44336;
+            .badge.status-overdue {
+                background-color: #fee2e2;
+                color: #b91c1c;
             }
             
-            .summary-row.total {
-                font-weight: 700;
-                font-size: 1.1rem;
+            .badge.status-today {
+                background-color: #ffedd5;
+                color: #c2410c;
             }
             
-            .separator {
-                height: 1px;
-                background-color: #dee2e6;
-                margin: 0.75rem 0;
+            .badge.status-upcoming {
+                background-color: #f0f9ff;
+                color: #0369a1;
+            }
+            
+            /* أنماط نافذة التأكيد */
+            .confirmation-details {
+                margin-top: 1rem;
+            }
+            
+            .investor-name {
+                margin-bottom: 1rem;
+                font-size: 1.1em;
+            }
+            
+            .installments-list {
+                margin-bottom: 1rem;
+            }
+            
+            .installments-list h4 {
+                margin-bottom: 0.5rem;
+                font-size: 1em;
+                font-weight: 600;
+                color: #475569;
+            }
+            
+            .installments-list ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                background-color: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            
+            .installments-list li {
+                display: flex;
+                justify-content: space-between;
+                padding: 8px 12px;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            
+            .installments-list li:last-child {
+                border-bottom: none;
+            }
+            
+            .installment-desc {
+                font-weight: 500;
+            }
+            
+            .installment-amount {
+                font-weight: 600;
+                color: #b91c1c;
+            }
+            
+            .profit-details {
+                background-color: #fff;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                overflow: hidden;
+                margin-top: 1rem;
+            }
+            
+            .detail-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px 16px;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            
+            .detail-row:last-child {
+                border-bottom: none;
+            }
+            
+            .detail-label {
+                font-weight: 500;
+            }
+            
+            .detail-value {
+                font-weight: 600;
+            }
+            
+            .detail-row.final {
+                background-color: #ecfdf5;
+                font-weight: 600;
+                font-size: 1.1em;
+            }
+            
+            .detail-row.final.zero {
+                background-color: #ffedd5;
+            }
+            
+            /* أنماط نافذة سجل الأقساط */
+            .investor-profile {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 1.5rem;
+            }
+            
+            .investor-avatar.large {
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+            }
+            
+            .investor-fullname {
+                margin: 0;
+                font-size: 1.5em;
+                font-weight: 600;
             }
         `;
         
@@ -2366,21 +2371,122 @@ const InstallmentSystem = (function() {
         console.log('تم إضافة أنماط CSS لنظام الأقساط');
     }
     
-    // تصدير الواجهة العامة
+    /**
+     * فتح نافذة منبثقة
+     * @param {string} modalId - معرف النافذة
+     */
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        
+        modal.classList.add('active');
+    }
+    
+    /**
+     * إغلاق نافذة منبثقة
+     * @param {string} modalId - معرف النافذة
+     */
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        
+        modal.classList.remove('active');
+    }
+    
+    /**
+     * تنسيق المبلغ المالي
+     * @param {number} amount - المبلغ
+     * @param {boolean} addCurrency - إضافة رمز العملة
+     * @returns {string} - المبلغ المنسق
+     */
+    function formatCurrency(amount, addCurrency = true) {
+        // استخدام دالة النظام لتنسيق المبلغ إذا كانت موجودة
+        if (typeof window.formatCurrency === 'function') {
+            return window.formatCurrency(amount, addCurrency);
+        }
+        
+        // تنسيق بديل إذا لم تكن الدالة موجودة
+        if (isNaN(amount)) amount = 0;
+        
+        const formattedAmount = amount.toLocaleString('ar-IQ');
+        
+        if (addCurrency) {
+            const currency = window.settings?.currency || 'دينار';
+            return `${formattedAmount} ${currency}`;
+        }
+        
+        return formattedAmount;
+    }
+    
+    /**
+     * تنسيق التاريخ
+     * @param {string} dateString - سلسلة التاريخ
+     * @returns {string} - التاريخ المنسق
+     */
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        
+        try {
+            const date = new Date(dateString);
+            
+            // التحقق من صحة التاريخ
+            if (isNaN(date.getTime())) return dateString;
+            
+            // تنسيق التاريخ بالصيغة العربية
+            return date.toLocaleDateString('ar-IQ', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        } catch (error) {
+            return dateString;
+        }
+    }
+    
+    /**
+     * إضافة عملية جديدة
+     * يعيد استخدام الدالة الموجودة في التطبيق إذا كانت متاحة
+     */
+    function addTransaction(type, investorId, amount, notes = '') {
+        if (typeof window.addTransaction === 'function') {
+            return window.addTransaction(type, investorId, amount, notes);
+        }
+        
+        console.error('دالة addTransaction غير موجودة في النظام');
+        return null;
+    }
+    
+    /**
+     * عرض إشعار للمستخدم
+     * يعيد استخدام الدالة الموجودة في التطبيق إذا كانت متاحة
+     */
+    function showNotification(message, type = 'success') {
+        if (typeof window.showNotification === 'function') {
+            return window.showNotification(message, type);
+        }
+        
+        // إظهار رسالة في لوحة التحكم كبديل
+        console.log(`إشعار (${type}): ${message}`);
+    }
+    
+    // كشف الواجهة العامة للوحدة
     return {
         initialize,
-        getDueInstallments,
-        showAddInstallmentModal,
-        showInstallmentsPage
+        addInstallment: showAddInstallmentModal,
+        payInstallment,
+        showInstallmentsPage,
+        getDueInstallments
     };
 })();
 
 // تهيئة نظام الأقساط عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', function() {
-    InstallmentSystem.initialize();
-    
-    console.log('تم تحميل نظام إدارة الأقساط بنجاح');
+    // تأخير التهيئة قليلاً لضمان تحميل النظام الأساسي أولاً
+    setTimeout(() => {
+        InstallmentSystem.initialize();
+        console.log('تم تهيئة نظام الأقساط واستقطاعها من الأرباح');
+    }, 1000);
 });
 
-// تصدير نظام الأقساط للاستخدام العام
+// إتاحة الوصول العالمي إلى نظام الأقساط
 window.InstallmentSystem = InstallmentSystem;
